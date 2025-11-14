@@ -1,0 +1,898 @@
+//Block.cpp
+#include "Block.h"
+
+Block::Block(Rect rect, BlockType type)
+    : rect(rect), type(type) {
+}
+
+void Block::SetImage(int imageID_) {
+    imageID = imageID_;
+}
+
+void Block::Draw(int scrollX) const {
+    if (imageID >= 0) {
+        //画像が設定されているなら画像を描画
+        DrawExtendGraph(
+            rect.x - scrollX, rect.y,
+            rect.x + rect.w - scrollX, rect.y + rect.h,
+            imageID,
+            TRUE
+        );
+    }
+    else {
+        // 画像なしなら色付きボックスで描画
+        int color = GetColor(200, 200, 200);  // デフォルト色
+
+        switch (type) {
+        case BlockType::GroundA:
+           color = GetColor(139, 69, 19);   // 茶色
+           break;
+
+        case BlockType::GroundB:
+            color = GetColor(160, 82, 45);   // 明るい茶色
+            break;
+
+        case BlockType::Brick:
+            color = GetColor(255, 100, 100); // 赤っぽいレンガ
+            break;
+
+        case BlockType::Question:
+            color = GetColor(255, 255, 0);   // 黄色
+            break;
+        }
+
+        DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
+
+    }
+}
+
+const Rect& Block::GetRect() const {
+    return rect;
+}
+
+BlockType Block::GetType() const {
+    return type;
+}
+
+bool Block::HasCollision() const {
+    return true;
+}
+
+bool Block::IsActivated() const { 
+    return activated;
+}
+
+void Block::Activate() { 
+    activated = true;
+    type = BlockType::GroundB; // 使い終わったブロックに見た目変更 
+
+    // 画像IDを GroundB の画像に変更
+    if (blockImages != nullptr) {
+        imageID = blockImages[(int)BlockType::GroundB];
+    }
+}
+
+void Block::SetType(BlockType newType) {
+    type = newType;
+}
+
+void Block::SetBlockImages(const int* images) {
+    blockImages = images;
+}
+
+//Block.h
+#pragma once
+#include "Types.h"
+#include <DxLib.h>
+
+// ブロックの種類
+enum class BlockType {
+    GroundA,   // 地面ブロックA
+    GroundB,   // 地面ブロックB
+    Brick,     // レンガブロック
+    Question   // ？ブロック
+};
+
+class Block {
+public:
+    void SetType(BlockType newType);       // 追加
+    Block(Rect rect, BlockType type);      // コンストラクタ
+
+    void Draw(int scrollX) const;          // 描画
+    const Rect& GetRect() const;           // 当たり判定領域取得
+    BlockType GetType() const;             // 種類取得
+
+    bool HasCollision() const;             // 当たり判定の有無（今後用）
+
+    void SetImage(int imageID);           // 画像をセット
+    void SetBlockImages(const int* images);
+
+    bool IsActivated() const;
+    void Activate();
+
+private:
+    bool activated = false;
+    Rect rect;         // ブロックの位置・大きさ
+    BlockType type;    // ブロックの種類
+    int imageID = -1;                     // -1なら画像未使用
+    const int* blockImages = nullptr;     // ブロック画像配列の参照用
+};
+
+//Enemy.cpp
+#include "Enemy.h"
+
+void Enemy::Draw(int scrollX, int imageID) const {
+    DrawExtendGraph(
+        rect.x - scrollX,
+        rect.y,
+        rect.x + rect.w - scrollX,
+        rect.y + rect.h,
+        imageID,
+        TRUE
+    );
+}
+
+//Enemy.h
+#pragma once
+#include "Types.h"
+#include <DxLib.h>
+
+class Enemy {
+public:
+    Rect rect;
+    int type;
+
+    void Draw(int scrollX, int imageID) const;
+};
+
+//GameScene.cpp
+#include "GameScene.h"
+#include "DxLib.h"
+
+int GetRandomItemType() {
+    return GetRand(4);  // 0〜4 のアイテム番号
+}
+
+ /*
+    '#' = 壁
+    'I' = アイテム
+    'E' = 敵
+    'P' = プレイヤー初期位置
+*/
+
+const std::vector<std::string> mapText = {
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                                                                                      1 3 5 2 4                                                                                                              ",
+           "                      ?                                                                       ?       #########?                                                                                                             ",
+           "                                                                                                                                                                                                                             ",
+           "                                     3          5                                                                                                                                                                            ",
+           "                                                                   23432                                                                                                                                                     ",
+           "             ?      #?#?#                 //                  ?   1     1                ?????   ?                                 2                                                                                         ",
+           "                                //        //        //                                                                    /   /         //   /             453                                                               ",
+           "     　　      　　　　         //        //        //                                                                   //   //       ///   //                                                                              ",
+           "  P                        A    //        //    A   //                               3453              A   B   C        ///   ///     ////   ///                                         345                                 ",
+           "===================================================================     ==================================================================   ================================================================================",
+           "===================================================================     ==================================================================   ================================================================================"
+           //0         1         2         3         4         5         6         7         8         9         A         B         C         D         E         F        10        11        12        13        14        15        16         7         8         9
+           //上の数は10マスごとに16進数で数えられている
+};
+
+void GameScene::Init() {
+    //speed = 5;
+    scrollX = 0;
+    endFlag = false;
+
+    // ブロック画像の読み込み
+    blockImages[(int)BlockType::GroundA] = LoadGraph("image/GroundA.png");
+    blockImages[(int)BlockType::GroundB] = LoadGraph("image/Ground_B.png");
+    blockImages[(int)BlockType::Brick] = LoadGraph("image/Block.png");
+    blockImages[(int)BlockType::Question] = LoadGraph("image/Question_Block.png");
+
+
+    // マップデータから各オブジェクトリストを取得
+    map.LoadFromString(mapText, blockImages);
+    blocks = map.blocks;    //壁のオブジェクトリスト
+    items = map.items;      //アイテムのオブジェクトリスト
+    enemies = map.enemies;  //敵のオブジェクトリスト
+    itemCollected = std::vector<bool>(items.size(), false);
+
+    enemyImages =       //敵の描画ファイルの読み込み
+    {
+         LoadGraph("image/Enemy1.png"),
+         LoadGraph("image/Enemy2.png"),
+         LoadGraph("image/Enemy3.png")
+    };
+
+    itemImages = {       //アイテムがの描画ファイルの読み込み
+       LoadGraph("image/Food1.png"),
+       LoadGraph("image/Food2.png"),
+       LoadGraph("image/Food3.png"),
+       LoadGraph("image/Food4.png"),
+       LoadGraph("image/Food5.png")
+    };
+
+    //ステージの描画ファイルの読み込み
+    backgroundImage = LoadGraph("image/background.png");
+
+    // プレイヤーのマップ上の初期座標
+    player.Init(map.playerStart);
+    //enemies = map.enemies;
+
+    player.SetBlockImages(blockImages);
+}
+
+void GameScene::Update() {
+    player.Update(blocks);
+ 
+    // プレイヤーの頭位置の矩形
+    Rect playerRect = player.GetRect();
+
+    // プレイヤーの頭部矩形を作る
+    Rect headRect = playerRect;
+    headRect.h = 5;             // 頭の高さは小さめ
+    headRect.y -= 5;            // 頭の上に少しオフセット
+
+    for (auto& block : blocks) {
+        if (!block.HasCollision()) continue;
+
+        const Rect& b = block.GetRect();
+
+        // 上向きジャンプ中に？ブロックと接触
+        if (headRect.Intersects(b) && block.GetType() == BlockType::Question && !block.IsActivated()) {
+            block.Activate();
+
+            // ブロックの種類を地面Bに変更
+            block.SetType(BlockType::GroundB);
+            block.SetImage(blockImages[(int)BlockType::GroundB]);
+
+            // アイテムを出す
+            items.push_back({ { b.x, b.y - b.h, b.w, b.h }, GetRandomItemType() });
+            itemCollected.push_back(false);
+        }
+    }
+
+    // アイテムとの当たり判定などで使用
+    for (size_t i = 0; i < items.size(); ++i) {
+        if (!itemCollected[i] && CheckCollision(playerRect, items[i].rect)) {
+            itemCollected[i] = true;
+            player.Grow();  // 太る
+        }
+    }
+
+    for (const auto& enemy : enemies) {
+        if (CheckCollision(playerRect, enemy.rect)) {
+            endFlag = true;
+        }
+    }
+
+    scrollX = player.GetX() - SCREEN_WIDTH / 2;
+    if (scrollX < 0) scrollX = 0;
+
+    if (player.IsDead()) {
+        endFlag = true;
+    }
+
+    if (CheckHitKey(KEY_INPUT_ESCAPE)) {
+        endFlag = true;
+    }
+}
+
+void GameScene::Draw() {
+    DrawString(10, 10, "←→:移動 SPACE:ジャンプ ESC:終了", GetColor(255, 255, 255));
+    DrawString(10, 50, ("壁の数: " + std::to_string(blocks.size())).c_str(), GetColor(255, 255, 255));
+
+    // 背景描画
+    if (backgroundImage >= 0) {
+        // 背景をスクロールに応じて描画（ループ表示例）
+        int bgWidth, bgHeight;
+        GetGraphSize(backgroundImage, &bgWidth, &bgHeight);
+
+        int bgX = -(scrollX % bgWidth);
+        for (int x = bgX; x < SCREEN_WIDTH; x += bgWidth) {
+            DrawGraph(x, 0, backgroundImage, TRUE);
+        }
+    }
+
+    // 敵描画
+    for (const auto& enemy : enemies) {
+        enemy.Draw(scrollX, enemyImages[enemy.type]);
+    }
+
+    // ブロック描画
+    for (const auto& block : blocks) {
+        block.Draw(scrollX);
+    }
+
+    // アイテム描画
+    for (size_t i = 0; i < items.size(); ++i) {
+        if (!itemCollected[i]) {
+            const auto& item = items[i];
+            DrawExtendGraph(
+                item.rect.x - scrollX, item.rect.y,
+                item.rect.x + item.rect.w - scrollX, item.rect.y + item.rect.h,
+                itemImages[item.type], TRUE);
+        }
+    }
+
+    // プレイヤー描画（当たり判定と一致させる）
+    player.Draw(scrollX);
+   
+}
+
+bool GameScene::IsEnd() {
+    return endFlag;
+}
+
+int GameScene::NextScene() {
+    return 0; // タイトル画面に戻る
+}
+
+bool GameScene::CheckCollision(const Rect& a, const Rect& b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+//GameScene.h
+#pragma once
+#include "SceneBase.h"
+#include "MapData.h"
+#include "Player.h"
+#include "Enemy.h"
+#include "Block.h"
+#include <vector>
+
+class GameScene : public SceneBase {
+public:
+    void Init() override;
+    void Update() override;
+    void Draw() override;
+    bool IsEnd() override;
+    int NextScene() override;
+
+private:
+    bool CheckCollision(const Rect& a, const Rect& b);
+
+    int scrollX;
+    bool endFlag;
+
+    std::vector<Block> blocks;
+    std::vector<Item> items;
+    std::vector<bool> itemCollected;
+    std::vector<Enemy> enemies;
+    std::vector<int> enemyImages;
+    std::vector<int> itemImages;
+
+    Player player;
+    MapData map;
+
+    // ブロック画像
+    int blockImages[(int)BlockType::Question + 1];
+
+    int backgroundImage = -1; // 背景画像用
+
+    static constexpr int SCREEN_WIDTH = 1280;
+    static constexpr int SCREEN_HEIGHT = 720;
+};
+
+//Main.cpp
+#include "DxLib.h"
+#include "SceneManager.h"
+#include "GameScene.h"
+
+const int WIN_WIDTH = 1280;
+const int WIN_HEIGHT = 720;
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    ChangeWindowMode(TRUE);         // ウィンドウモードに変更
+    SetGraphMode(WIN_WIDTH, WIN_HEIGHT, 32);    // 幅1280px, 高さ720px, 32bitカラー
+    DxLib_Init();                   // DxLib初期化
+    SetDrawScreen(DX_SCREEN_BACK);  // 裏画面に描画
+
+    SceneManager sceneManager;
+    sceneManager.ChangeScene(0); // タイトル画面からスタート
+
+    while (ScreenFlip() == 0 && ProcessMessage() == 0 && ClearDrawScreen() == 0) {
+        sceneManager.Update();  // 現在のシーンのロジック処理
+        sceneManager.Draw();    // 現在のシーンの描画
+    }
+
+    DxLib_End();                // 終了処理
+    return 0;
+}
+
+//MapData.cpp
+#include "DxLib.h"
+#include "SceneManager.h"
+#include "GameScene.h"
+
+const int WIN_WIDTH = 1280;
+const int WIN_HEIGHT = 720;
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    ChangeWindowMode(TRUE);         // ウィンドウモードに変更
+    SetGraphMode(WIN_WIDTH, WIN_HEIGHT, 32);    // 幅1280px, 高さ720px, 32bitカラー
+    DxLib_Init();                   // DxLib初期化
+    SetDrawScreen(DX_SCREEN_BACK);  // 裏画面に描画
+
+    SceneManager sceneManager;
+    sceneManager.ChangeScene(0); // タイトル画面からスタート
+
+    while (ScreenFlip() == 0 && ProcessMessage() == 0 && ClearDrawScreen() == 0) {
+        sceneManager.Update();  // 現在のシーンのロジック処理
+        sceneManager.Draw();    // 現在のシーンの描画
+    }
+
+    DxLib_End();                // 終了処理
+    return 0;
+}
+
+//MapData.h
+#pragma once
+#include <vector>
+#include <string>
+#include "Types.h"
+#include "Enemy.h"
+#include "Block.h" 
+
+// 敵データ構造（位置＋種類）
+//struct Enemy {
+//    Rect rect;
+//    int type; // 0:トマト, 1:たまねぎ, 2:にんじん
+//};
+
+// アイテムデータ構造（位置＋種類）
+struct Item {
+    Rect rect;
+    int type; // 0:肉, 1:ドーナツ, ... 4:ピザ
+};
+
+//enum TileType {
+//    TILE_EMPTY,
+//    TILE_WALL,
+//};
+
+// マップデータ全体を保持するクラス
+class MapData {
+private:
+    std::vector<std::string> rawMap;     // 元のマップ文字列
+    int tileSize = 40;                   // タイル1マスのピクセルサイズ               
+protected:
+public:
+    // マップ文字列からマップを構築する
+    void LoadFromString(const std::vector<std::string>& mapLines, const int* blockImages);
+
+    std::vector<Block> blocks;       // ブロック一覧
+    std::vector<Item> items;         // アイテム一覧
+    std::vector<Enemy> enemies;      // 敵一覧
+    Rect playerStart;                // プレイヤー初期位置
+
+    //const int tileSize = 40;        // タイル1マスのピクセルサイズ
+    //std::vector<std::string> rawMap;    // 元のマップ文字列
+};
+
+//Player.cpp
+#include "Player.h"
+#include <DxLib.h>
+
+void Player::Init(const Rect& start) {
+    x = start.x + WIDTH_MIN / 2;
+    y = start.y + HEIGHT / 2;
+    width = WIDTH_NOR;      // 普通体型
+    speed = SPEED_MAX;
+    jumpPower = JUMP_MAX;
+    velocityY = 0;
+    imageID = LoadGraph("image/Player.png");
+
+    walkedDistance = 0.0f;
+}
+
+void Player::Update(/*const*/ std::vector<Block>& blocks) {
+    int dx = 0;
+    bool moved = false;
+
+    if (CheckHitKey(KEY_INPUT_RIGHT)) { dx = (int)speed; moved = true; }
+    if (CheckHitKey(KEY_INPUT_LEFT)) { dx = -(int)speed; moved = true; }
+
+    if (moved) walkedDistance += abs(dx);       //移動中の距離の加算
+    
+    // 横方向の移動・当たり判定
+    Rect playerRect = GetRect();
+    Rect nextRect = playerRect;
+    nextRect.x += dx;
+
+    for(const auto & block : blocks)
+    {
+        if (!block.HasCollision()) continue;
+
+        const Rect& rect = block.GetRect();  // ブロックの当たり判定
+
+        if (nextRect.Intersects(rect)) {
+            if (playerRect.y + playerRect.h > rect.y + 5 &&
+                playerRect.y < rect.y + rect.h - 5) {
+                dx = 0;
+            }
+        }
+    }
+    x += dx;
+
+    // ジャンプ
+    if (CheckHitKey(KEY_INPUT_SPACE) && !isJumping) {
+        velocityY = jumpPower;
+        isJumping = true;
+    }
+
+    // 重力
+    velocityY += GRAVITY;
+    y += (int)velocityY;
+  
+    // 足元の当たり判定
+    Rect footRect = GetRect();
+    for (int i = (int)blocks.size() - 1; i >= 0; --i) {
+        Block& block = blocks[i];
+        if (!block.HasCollision()) continue;
+
+        const Rect& rect = block.GetRect();
+
+        if (footRect.Intersects(rect)) 
+        {
+            if (velocityY > 0) 
+            {
+                y = rect.y - HEIGHT / 2;
+                velocityY = 0;
+                isJumping = false;
+
+                // 肥満状態でレンガの上なら削除
+                FatState fat = GetFatState();
+                if ((fat == FatState::Fat1 || fat == FatState::Fat2 ||
+                    fat == FatState::Fat3 || fat == FatState::Fat4) &&
+                    block.GetType() == BlockType::Brick)
+                {
+                    blocks.erase(blocks.begin() + i);
+                    continue;
+                }
+            }
+            else if (velocityY < 0) 
+            {
+                y = rect.y + rect.h + HEIGHT / 2;
+                velocityY = 0;
+            }
+        }
+    }
+
+    // 落下死判定
+    if (y > FALL_LIMIT_Y) {
+        isDead = true;
+    }
+
+    ShrinkByDistance();
+}
+
+void Player::Draw(int scrollX) const {
+    DrawExtendGraph(x - width / 2 - scrollX, y - HEIGHT / 2, x + width / 2 - scrollX, y + HEIGHT / 2, imageID, TRUE);
+
+     // 体型表示
+    int fatRatio = GetFatLevel();
+    const char* status = "";
+    switch (GetFatState()) {
+        case FatState::Thin:          status = "瘦せ"; break;
+        case FatState::SlightlyThin:  status = "やや瘦せ"; break;
+        case FatState::Normal:        status = "普通"; break;
+        case FatState::SlightlyFat:   status = "やや肥満"; break;
+        case FatState::Fat1:          status = "肥満(1度)"; break;
+        case FatState::Fat2:          status = "肥満(2度)"; break;
+        case FatState::Fat3:          status = "肥満(3度)"; break;
+        case FatState::Fat4:          status = "肥満(4度)"; break;
+    }
+
+
+    DrawString(10, 100, status, GetColor(255, 255, 255));
+
+    // 残り距離表示
+    int remaining = (int)(DISTANCE_TO_SHRINK - walkedDistance);
+    if (remaining < 0) remaining = 0;
+    DrawFormatString(10, 130, GetColor(255, 255, 255), "あと %d px で瘦せます", remaining);
+}
+
+Rect Player::GetRect() const {
+    return { x - width / 2, y - HEIGHT / 2, width, HEIGHT };
+}
+
+//食べたときの処理(大雑把に分けて8段階太る)
+void Player::Grow() {
+    FatState state = GetFatState();
+
+    if (width >= WIDTH_MAX) {
+        isDead = true;  // 太りすぎで死亡
+        return;
+    }
+
+    // 瘦せ または やや瘦せ のときは +15
+    if (state == FatState::Thin || state == FatState::SlightlyThin) {
+        if (width + 15 <= WIDTH_NOR) {
+            width += 15;
+            if (jumpPower < JUMP_MIN) jumpPower += 1.0f;
+        }
+        else {
+            width = WIDTH_NOR; // 普通の最大に調整
+        }
+    }
+    else {
+        // 普通以上は従来通り +40
+        if (width < WIDTH_MAX) width += 40;
+        if (speed > SPEED_MIN) speed -= 0.5f;
+        if (jumpPower < JUMP_MIN) jumpPower += 1.0f;
+    }
+
+    walkedDistance = 0.0f;         // カウントリセット
+}
+
+//動いているとき
+void Player::ShrinkByDistance() {
+
+    if (walkedDistance >= DISTANCE_TO_SHRINK) {
+        FatState state = GetFatState();
+
+        //「瘦せ状態」で歩ききったら死亡
+        if (state == FatState::Thin) {
+            isDead = true;
+            return;
+        }
+    }
+
+    // 普通より太っている → 大きく減少
+    if (walkedDistance >= DISTANCE_TO_SHRINK && width > WIDTH_NOR) {    
+        
+        if (width > WIDTH_NOR) {
+            if (width > WIDTH_MIN) width -= 40;
+            if (speed < SPEED_MAX) speed += 0.5f;
+            if (jumpPower > JUMP_MAX) jumpPower -= 1.0f;
+            walkedDistance = 0.0f; // カウントリセット
+        }
+    }
+    // 普通から痩せる → 少し減らす
+    else if(walkedDistance >= DISTANCE_TO_SHRINK && width == WIDTH_NOR)
+    {
+        if (width > WIDTH_MIN) width -= 15;
+        if (jumpPower > JUMP_MAX) jumpPower -= 1.0f;
+        walkedDistance = 0.0f; // カウントリセット
+    }
+    // やや瘦せ〜瘦せ → 少しずつ減少
+    else if (walkedDistance >= DISTANCE_TO_SHRINK && width > WIDTH_MIN)
+    {
+        if (width > WIDTH_MIN) width -= 15;
+        if (jumpPower > JUMP_MAX) jumpPower -= 1.0f;
+        walkedDistance = 0.0f; // カウントリセット
+    }
+}
+
+int Player::GetFatLevel() const {
+    if (width <= WIDTH_MIN)       return 0; // 瘦せ
+    if (width <= WIDTH_NOR - 15)  return 1; // やや瘦せ
+    if (width == WIDTH_NOR)       return 2; // 普通
+    if (width <= WIDTH_NOR + 40)  return 3; // やや肥満
+    if (width <= WIDTH_NOR + 80)  return 4; // 肥満(1度)
+    if (width <= WIDTH_NOR + 200) return 5; // 肥満(2度)
+    if (width <= WIDTH_NOR + 280) return 6; // 肥満(3度)
+    if (width <= WIDTH_MAX)       return 7; // 肥満(4度以上)
+}
+
+FatState Player::GetFatState() const {
+    if (width <= WIDTH_MIN)       return FatState::Thin;
+    if (width <= WIDTH_NOR - 15)  return FatState::SlightlyThin;
+    if (width == WIDTH_NOR)       return FatState::Normal;
+    if (width <= WIDTH_NOR + 40)  return FatState::SlightlyFat;
+    if (width <= WIDTH_NOR + 80)  return FatState::Fat1;
+    if (width <= WIDTH_NOR + 120) return FatState::Fat2;
+    if (width <= WIDTH_NOR + 280) return FatState::Fat3;
+    if (width <= WIDTH_MAX)       return FatState::Fat4;
+}
+
+void Player::SetBlockImages(const int* images)
+{
+    blockImages = images;
+}
+
+int Player::GetX() const { return x; }
+int Player::GetY() const { return y; }
+bool Player::IsDead() const { return isDead; }
+
+//Player.h
+#pragma once
+#include "Types.h"
+#include "Block.h"
+#include <DxLib.h>
+#include <vector>
+
+// プレイヤーの体型ステータスを定義
+enum class FatState {
+    Thin,           // 0: 瘦せ
+    SlightlyThin,   // 1: やや瘦せ
+    Normal,         // 2: 普通
+    SlightlyFat,    // 3: やや肥満
+    Fat1,           // 4: 肥満(1度)
+    Fat2,           // 5: 肥満(2度)
+    Fat3,           // 6: 肥満(3度)
+    Fat4            // 7: 肥満(4度)
+};
+
+class Player {
+public:
+    void Init(const Rect& start);
+    void Update(std::vector<Block>& blocks);
+    void Draw(int scrollX) const;
+
+    Rect GetRect() const;
+
+    void Grow();               // 太る処理
+    void ShrinkByDistance();   // 移動に応じて瘦せる
+
+    int GetX() const;
+    int GetY() const;
+    bool IsDead() const;             //プレイヤーの生死
+
+    int GetFatLevel() const;         //  数値型の段階
+    FatState GetFatState() const;    // enum型の体型
+
+    void SetBlockImages(const int* images);
+
+private:
+    int x;
+    int y;
+    int width;
+    float velocityY;
+    float speed;
+    float jumpPower;
+    bool isJumping = false;
+    bool isDead = false;
+
+    int imageID;
+
+    float walkedDistance = 0.0f;    // 移動距離の統計
+
+    const int* blockImages = nullptr;
+
+    const int HEIGHT = 40;          //高さ(身長)
+    const int WIDTH_MIN = 10;        //横幅(最低値)
+    const int WIDTH_NOR = 40;       //横幅(普通)
+    const int WIDTH_MAX = 360;      //横幅(最高値)
+
+    const float SPEED_MAX = 5.0f;   //移動速度(最低値)
+    const float SPEED_MIN = 1.0f;   //移動速度(最高値)
+
+    const float JUMP_MAX = -12.0f;  //ジャンプ力(最低値)
+    const float JUMP_MIN = -4.0f;   //ジャンプ力(最高値)
+
+    const float GRAVITY = 0.25f;     //重力
+    const int FALL_LIMIT_Y = 800; 
+
+    const float DISTANCE_TO_SHRINK = 500.0f; // この距離移動すると痩せる
+};
+
+//SceneBase.h
+#pragma once
+
+class SceneBase {
+private:
+protected:
+public:
+    virtual ~SceneBase() = default;
+    virtual void Init() = 0;     // 初期化
+    virtual void Update() = 0;   // ロジック更新
+    virtual void Draw() = 0;     // 描画
+    virtual bool IsEnd() = 0;    // 終了判定（画面遷移条件）
+    virtual int NextScene() = 0; // 次のシーンID
+};
+
+//SceneManager.cpp
+#include "SceneManager.h"
+#include "TitleScene.h"
+#include "GameScene.h"
+
+SceneManager::~SceneManager() {
+    delete currentScene;
+}
+
+void SceneManager::ChangeScene(int id) {
+    delete currentScene;
+    sceneID = id;
+    switch (id) {
+    case 0:
+        currentScene = new TitleScene();
+        break;
+    case 1:
+        currentScene = new GameScene();
+        break;
+    default:
+        currentScene = new TitleScene();
+        break;
+    }
+    currentScene->Init();
+}
+
+void SceneManager::Update() {
+    if (!currentScene) return;
+    currentScene->Update();
+    if (currentScene->IsEnd()) {
+        ChangeScene(currentScene->NextScene());
+    }
+}
+
+void SceneManager::Draw() {
+    if (!currentScene) return;
+    currentScene->Draw();
+}
+
+//SceneManager.h
+#pragma once
+#include "SceneBase.h"
+
+class SceneManager {
+private:
+    SceneBase* currentScene = nullptr;
+    int sceneID = 0;
+protected:
+public:
+    ~SceneManager();
+    void ChangeScene(int id);
+    void Update();
+    void Draw();
+};
+
+//TitleScene.cpp
+#include "TitleScene.h"
+#include "DxLib.h"
+
+void TitleScene::Init() {
+    endFlag = false;
+}
+
+void TitleScene::Update() {
+    if (CheckHitKey(KEY_INPUT_RETURN)) {
+        endFlag = true;
+    }
+}
+
+void TitleScene::Draw() {
+    DrawString(100, 100, "タイトル画面 - Enterでゲーム開始", GetColor(255, 255, 255));
+}
+
+bool TitleScene::IsEnd() {
+    return endFlag;
+}
+
+int TitleScene::NextScene() {
+    return 1; // GameSceneのID
+}
+
+//TitleScene.h
+#pragma once
+#include "SceneBase.h"
+
+class TitleScene : public SceneBase {
+private:
+    bool endFlag = false;
+protected:
+public:
+    void Init() override;
+    void Update() override;
+    void Draw() override;
+    bool IsEnd() override;
+    int NextScene() override;
+};
+
+//Types.h
+#pragma once
+
+struct Rect {
+    int x, y, w, h;
+
+    bool Intersects(const Rect& other) const {
+        return x < other.x + other.w && x + w > other.x &&
+            y < other.y + other.h && y + h > other.y;
+    }
+};
