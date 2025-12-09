@@ -626,7 +626,7 @@ void Player::Grow(std::vector<Block>& blocks) {
 	else {
 		// 普通以上は従来通り +40
 		if (width < WIDTH_MAX) width += 40;
-		if (speed > SPEED_MIN) speed -= 0.75f;//(0.5)
+		if (speed > SPEED_MIN) speed -= 0.65f;//(0.5)
 		if (jumpPower < JUMP_MIN) jumpPower += FAT_ADJUST;
 	}
 
@@ -666,7 +666,7 @@ void Player::ShrinkByDistance(std::vector<Block>& blocks) {
 
 		if (width > WIDTH_NOR) {
 			if (width > WIDTH_MIN) width -= 40;
-			if (speed < SPEED_MAX) speed += 0.75f;//(0.5)
+			if (speed < SPEED_MAX) speed += 0.65f;//(0.5)
 			if (jumpPower > JUMP_MAX) jumpPower -= FAT_ADJUST;
 		}
 	}
