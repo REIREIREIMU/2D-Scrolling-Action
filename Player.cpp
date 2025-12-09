@@ -132,6 +132,7 @@ void Player::Update(/*const*/ std::vector<Block>& blocks, double deltaTime) {
 	}
 
 
+
 	// 横移動処理 
 	int dx = (int)(moveX * speed * deltaTime * SPEED_CORRECTION);
 	if (dx != 0) {
