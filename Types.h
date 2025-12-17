@@ -1,5 +1,6 @@
 #pragma once
 
+// “–‚½‚è”»’è
 struct Rect {
 	int x, y, w, h;
 

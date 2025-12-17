@@ -1,60 +1,63 @@
 #pragma once
-//#include <vector>
-//#include <memory>
 #include "SceneBase.h"
+
+// シーン遷移/スコア共有の設定
+namespace SceneFlowConfig {
+	const int START_LIVES = 3; // 初期残機
+	const int MAX_STAGE   = 3; // ステージ最大数
+}
+
+// 各シーンのステータスを定義
+enum class SceneState {
+	Title_Scene,     // 0: タイトル画面
+	Ready_Scene,     // 1: 準備画面
+	GameOver_Scene,  // 2: ゲームオーバー画面
+	Clear_Scene,     // 3: クリア画面
+	Game_Scene,      // 4: プレイ画面
+};
 
 class SceneManager {
 private:
-	//std::vector<std::unique_ptr<SceneBase>> scenes;
-
 	SceneBase* currentScene = nullptr;
-	static int resultScore; // クリア後に渡すスコア
+	static int resultScore;   // クリア後に渡す純スコア(ボーナスなどが加えられたいないスコア)
+	static int timeBonus;	  // タイムボーナス
+	static int lifeBonus;	  // 残機ボーナス
+	static int bodyBonus;	  // 体型ボーナス
+	//static int itemBonus;	  // アイテムボーナス
 
-	int sceneID;
+	int	 sceneID      = -1;
+	int  CurrentStage =  1;   // 現在のステージ番号を追加 (1,2,3など)
+	int  PlayerLives  = SceneFlowConfig::START_LIVES;
 
-	int currentStage;   // 現在のステージ番号を追加 (1,2,3など)
-
-	int playerLives;
-	//SceneBase* currentScene = nullptr;
-
-	static int timeBonus;
-	static int lifeBonus;
-	static int bodyBonus;
-	static int itemBonus; // 将来用
-
-protected:
 public:
 	SceneManager();
 	~SceneManager();
+
 	void ChangeScene(int id);
-	//void Update();
 	void Update(float deltaTime);
 	void Draw();
 	SceneBase* GetCurrentScene();
 
 	//次のステージへ
 	void NextStage();
+	int  GetCurrentStage() const { return CurrentStage; }
+	void IncrementStage()		 { CurrentStage++; }						// 異なるステージでも残機は維持
+	int  GetMaxStage() const	 { return SceneFlowConfig::MAX_STAGE; }
+	void ResetStageAndLives()	 { CurrentStage = 1;
+								   PlayerLives  = SceneFlowConfig::START_LIVES; }
+	
+	static void SetResultScore(int s) { resultScore = s; }		// 純スコアをセット
+	static int GetResultScore()		  { return resultScore; }	// 純スコアの受け渡し
 
-	// スコアの受け渡し
-	static void SetResultScore(int score) { resultScore = score; }
-	static int GetResultScore() { return resultScore; }
+	static void SetTimeBonus(int t)   { timeBonus = t; }		// タイムボーナスをセット
+	static int GetTimeBonus()		  { return timeBonus; }		// タイムボーナスの受け渡し
+	
+	static void SetLifeBonus(int l)   { lifeBonus = l; }		// 残機ボーナスをセット
+	static int GetLifeBonus()		  { return lifeBonus; }		// 残機の受け渡し
+	
+	static void SetBodyBonus(int b)   { bodyBonus = b; }		// 体型ボーナスをセット
+	static int GetBodyBonus()		  { return bodyBonus; }		// 体型の受け渡し
 
-	static void SetTimeBonus(int t) { timeBonus = t; }
-	static int GetTimeBonus() { return timeBonus; }
-
-	static void SetLifeBonus(int l) { lifeBonus = l; }
-	static int GetLifeBonus() { return lifeBonus; }
-
-	static void SetBodyBonus(int b) { bodyBonus = b; }
-	static int GetBodyBonus() { return bodyBonus; }
-
-	static void SetItemBonus(int i) { itemBonus = i; }
-	static int GetItemBonus() { return itemBonus; }
-
-	// 追加
-	int GetCurrentStage() const { return currentStage; }
-	void IncrementStage() { currentStage++; } // 残機は維持
-	int GetMaxStage() const { return 3; }
-
-	void ResetStageAndLives() { currentStage = 1; playerLives = 3; }
+	//static void SetItemBonus(int i) { itemBonus = i; }		// アイテムボーナスをセット
+	//static int GetItemBonus()		  { return itemBonus; }		// アイテムの受け渡し
 };

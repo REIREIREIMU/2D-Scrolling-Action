@@ -2,6 +2,20 @@
 #include "SceneBase.h"
 #include <string>
 
+// クリア画面のスコア演出設定
+namespace ClearConfig {
+	const int WAIT_FRAMES    = 60;  // 入力受付まで
+	const int PHASE0_SEC     = 60;  // 基礎スコア表示
+	const int PHASE1_SEC     = 90;  // 時間ボーナス加算開始
+	const int PHASE2_SEC     = 120; // 残機ボーナス
+	const int PHASE3_SEC     = 150; // 体型ボーナス
+	const int PHASE4_SEC     = 180; // アイテムボーナス
+	const int PHASE_NEXT_SEC = 60;
+
+	const int TIME_ADD_PER_STEP = 50;
+	const int LIFE_ADD_SCORE = 1000;
+}
+
 class SceneManager;
 
 class ClearScene : public SceneBase {
@@ -50,6 +64,6 @@ public:
 	void SetScore(int score) { score_ = score; }
 
 	//リザルト画面用の関数
-	void SetBonuses(int time, int lives, int body, int items);
+	void SetBonuses(int time, int lives, int body /*, int items*/);
 
 };

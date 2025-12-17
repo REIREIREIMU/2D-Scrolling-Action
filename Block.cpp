@@ -1,20 +1,17 @@
 ﻿#include "Block.h"
 #include "DxLib.h"
+#include "Config.h"
 #include <algorithm>
-
-//ランダム使うよ(出てくるレンガの破片のために)
 #include <cstdlib> 
 #include <ctime>
 
 // 静的メンバの定義
 int Block::brickFragmentImages[2] = { -1, -1 };
+int Block::questionImages[3]	  = { -1, -1, -1 };
+int Block::questionImageCount	  = 0;
 
-int Block::questionImages[3] = { -1, -1, -1 };
-int Block::questionImageCount = 0;
-
-Block::Block(Rect rect, BlockType type)
-	: rect(rect), type(type) {
-}
+Block::Block(Rect r, BlockType t):
+	rect(r), type(t) {}
 
 void Block::SetImage(int imageID_) {
 	imageID = imageID_;
@@ -28,26 +25,14 @@ void Block::SetType(BlockType newType) {
 	type = newType;
 }
 
-//当たり判定のブロック
+//当たり判定の有効のブロック
 bool Block::HasCollision() const {
-	//return true;
-
 	return
 		type == BlockType::GroundA ||
 		type == BlockType::GroundB ||
-		type == BlockType::Brick ||
+		type == BlockType::Brick   ||
 		type == BlockType::Question||
 		type == BlockType::Question_Empty;
-
-	//type == BlockType::Goal;
-}
-
-const Rect& Block::GetRect() const {
-	return rect;
-}
-
-BlockType Block::GetType() const {
-	return type;
 }
 
 void Block::SetBrickPieceImages(const int* images, int count)
@@ -62,8 +47,11 @@ bool Block::IsActivated() const {
 }
 
 void Block::Activate() {
+
+	// 今叩かれたら true
 	activated = true;
-	type = BlockType::Question_Empty; // 使い終わったブロックに見た目変更
+	// 「使い終わった？ブロック」に見た目変更
+	type = BlockType::Question_Empty;
 
 	// 画像IDを Question_Empty の画像に変更
 	if (blockImages != nullptr) {
@@ -72,39 +60,36 @@ void Block::Activate() {
 }
 
 void Block::BreakBrick() {
-	//if (type != BlockType::Brick) return;
 	if (type != BlockType::Brick || isBroken) return;
 
-	// 今破壊されたら true に
-	//brokenThisFrame = true;
-
+	// 今破壊されたら true
 	isBroken = true;
-
-	type = BlockType::None;
-
+	// 破壊されたら「何も無い」に
+	type = BlockType::None; 
+	// 画像読み込み
 	imageID = -1;
 
-	//時々レンガの破片が表示されないバグが起きる
-	//fragments.clear();
-
 	// 破片の数を 2〜4 のランダム化
-	int pieceCount = 2 + rand() % 3; // 2から4つ表示
+	int pieceCount = BlockConfig::PieceCount_MIN + rand() % BlockConfig::PieceCount_MAX; // 2から4つ表示
 
 	// 左右に破片を飛ばす
 	for (int i = 0; i < pieceCount; i++) {
 		BrickPiece frag;
-		frag.x = rect.x + rect.w / 2.0f;
-		frag.y = rect.y + rect.h / 2.0f;
+		frag.x = rect.x + rect.w / GlobalConfig::Break_Number;
+		frag.y = rect.y + rect.h / GlobalConfig::Break_Number;
 
-		// ランダムな速度で飛び散る
-		frag.vx = (rand() % 2 == 0 ? -1.0f : 1.0f)
-			* (120.0f + rand() % 80);		// 左右に飛ぶ
-		frag.vy = (-250.0f + rand() % -150);  // 上に散らばる
+		// 左右にばらける初速（120〜200）
+		float speedX = BlockConfig::frag_MAX_X + rand() % BlockConfig::frag_MIN_X;
+
+		frag.vx = rand() % 2 == 0 ? -speedX : speedX;
+
+		// 上向きの初速（-250〜-150）
+		frag.vy = BlockConfig::frag_MIN_Y + rand() % BlockConfig::frag_MAX_Y;
 
 		// 破片表示画像もランダム
 		frag.imageID = brickFragmentImages[rand() % 2];
 
-		frag.lifetime = 3.0f;         // 3秒間表示
+		frag.lifetime = BlockConfig::Piece_LiffTime;  // 3秒間表示
 		fragments.push_back(frag);
 	}
 }
@@ -121,152 +106,31 @@ void Block::Update(double deltaTime) {
 	// ？ブロックのアニメーション処理
 	if (type == BlockType::Question && !activated && questionImageCount > 0) {
 		animTimer += deltaTime;
-
 		// 0.2秒ごとに切り替え
-		//if (animTimer >= 0.2f) {
-		//	animTimer = 0.0f;
-		//	animFrame = (animFrame + 1) % 3; // 0,1,2,3ループ
-		//
-		//	if (blockImages != nullptr) {
-		//		// ？ブロック画像は3枚連番確保想定
-		//		imageID = blockImages[(int)BlockType::Question * 3 + animFrame];
-		//	}
-		//}
-
-		if (animTimer >= 0.2f) {
+		if (animTimer >= BlockConfig::Question_AnimTime) {
 			animTimer = 0.0f;
 			animFrame = (animFrame + 1) % questionImageCount; // 3枚ループ
-
-			/*if (blockImages != nullptr) {
-				imageID = blockImages[(int)BlockType::Question * 3 + animFrame];
-			}*/
 		}
-
 	}
 
-	// レンガ破片のアニメーション処理
-	//// 破壊された瞬間に破片を出す
-	//if (brokenThisFrame) {
-	//
-	//	//時々レンガの破片が表示されないバグが起きる
-	//	//fragments.clear();
-	//
-	//	 // 破片の数を 2〜4 のランダム化
-	//	int pieceCount = 2 + rand() % 3; // 2から4つ表示
-	//
-	//	// 左右に破片を飛ばす
-	//	for (int i = 0; i < pieceCount; i++) {
-	//		BrickPiece frag;
-	//		frag.x = rect.x + rect.w / 2.0f;
-	//		frag.y = rect.y + rect.h / 2.0f;
-	//
-	//		// ランダムな速度で飛び散る
-	//		frag.vx = (rand() % 2 == 0 ? -1.0f : 1.0f)
-	//			* (120.0f + rand() % 80);		// 左右に飛ぶ
-	//		frag.vy = (-250.0f + rand() % -150);  // 上に散らばる
-	//
-	//		// 破片表示画像もランダム
-	//		frag.imageID = brickFragmentImages[rand() % 2];
-	//
-	//		frag.lifetime = 3.0f;         // 3秒間表示
-	//		fragments.push_back(frag);
-	//	}
-	//
-	//	brokenThisFrame = false; // フラグをリセット
-	//}
-	//
-	//// 破片の重力
-	//for (auto it = fragments.begin(); it != fragments.end();) {
-	//	it->x += it->vx * deltaTime;
-	//	it->y += it->vy * deltaTime;
-	//	it->vy += 750.0f * deltaTime; // 重力
-	//	it->lifetime -= deltaTime;
-	//
-	//	if (it->lifetime <= 0) {
-	//		it = fragments.erase(it);
-	//	}
-	//	else {
-	//		++it;
-	//	}
-	//
-	//}
-
+	// 破片の移動・寿命
 	for (auto& frag : fragments) {
-		frag.x += frag.vx * deltaTime;
-		frag.y += frag.vy * deltaTime;
-		frag.vy += 800.0f * deltaTime; // 重力
-		frag.lifetime -= deltaTime;
-		//frag.lifetime -= static_cast<float>(deltaTime);
+		frag.x		  += frag.vx * (float)deltaTime;						// X座標移動
+		frag.y		  += frag.vy * (float)deltaTime;						// Y座標移動
+		frag.vy		  += BlockConfig::Piece_Gravity * (float)deltaTime;		// 重力
+		frag.lifetime -= (float)deltaTime;									// 破片寿命（減算）
 	}
-
-	//prevType = type;
-
 	// 時間が過ぎたら破片を削除
 	fragments.erase(
 		std::remove_if(fragments.begin(), fragments.end(),
 			[](const BrickPiece& f) { return f.lifetime <= 0.0f; }),
 		fragments.end()
 	);
-
 }
 
 void Block::Draw(int scrollX) const {
 
-	// 通常ブロック描画(空ブロックは対象外)
-	if (imageID >= 0) {
-		//画像が設定されているなら画像を描画
-		DrawExtendGraph(
-			rect.x - scrollX, rect.y,
-			rect.x + rect.w - scrollX, rect.y + rect.h,
-			imageID,
-			TRUE
-		);
-	}
-	else {
-		// デバッグ用の色描画
-		//if (type == BlockType::Brick) return;
-
-		// 画像なしなら色付きボックスで描画
-		int color = GetColor(200, 200, 200);  // デフォルト色
-
-		switch (type) {
-		case BlockType::GroundA:
-			color = GetColor(139, 69, 19);   // 茶色
-			DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-			break;
-
-		case BlockType::GroundB:
-			color = GetColor(160, 82, 45);   // 明るい茶色
-			DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-			break;
-
-		case BlockType::Brick:
-			color = GetColor(255, 100, 100); // 赤っぽいレンガ
-			DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-			break;
-
-		case BlockType::Question:
-			color = GetColor(255, 255, 0);   // 黄色
-			DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-			break;
-
-		case BlockType::Goal:
-			color = GetColor(0, 0, 0);   // 黒
-			DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-			break;
-
-			//case BlockType::None:
-			//	
-			//	break;
-		}
-
-		//空ブロック以外は仮ブロックを表示する
-		if(type != BlockType::None)
-		DrawBox(rect.x - scrollX, rect.y, rect.x + rect.w - scrollX, rect.y + rect.h, color, TRUE);
-	
-	}
-
-	//？ブロックの表示座標
+	// 画像優先で描画
 	int drawX1 = rect.x - scrollX;
 	int drawY1 = rect.y;
 	int drawX2 = rect.x + rect.w - scrollX;
@@ -282,24 +146,49 @@ void Block::Draw(int scrollX) const {
 		}
 	}
 
+	// 通常ブロック描画(空ブロックは対象外)
+	if (imageID >= 0) {
+		//画像が設定されているなら画像を描画
+		DrawExtendGraph(drawX1, drawY1, drawX2, drawY2,imageID, TRUE );
+	}
+	else {
+		// 画像なしなら色付きボックスで描画
+		switch (type) {
+		case BlockType::GroundA:	// 茶色
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Brown, TRUE);
+			break;
+
+		case BlockType::GroundB:	// 明るい茶色 
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Light_Brown, TRUE);
+			break;
+
+		case BlockType::Brick:		// 赤っぽいレンガ
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Red, TRUE);
+			break;
+
+		case BlockType::Question:	// 黄色
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Yellow, TRUE);
+			break;
+
+		case BlockType::Goal:		// 黒
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Black, TRUE);
+			break;
+		}
+		//空ブロック以外は仮ブロックを表示する
+		if(type != BlockType::None)
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Default_Color, TRUE);
+	}
+
 	// レンガ破片の描画
 	for (const auto& frag : fragments) {
 		if (frag.imageID >= 0) {
 			int w, h;
 			GetGraphSize(frag.imageID, &w, &h);
-			/*DrawExtendGraph(
-				(int)frag.x - scrollX,
-				(int)frag.y,
-				(int)frag.x - scrollX + w / 2,
-				(int)frag.y + h / 2,
-				frag.imageID,
-				TRUE
-			);*/
 			DrawExtendGraph(
 				(int)frag.x - scrollX,
 				(int)frag.y,
-				(int)frag.x - scrollX + w / 18,
-				(int)frag.y + h / 18,
+				(int)frag.x - scrollX + w / BlockConfig::Reduction,
+				(int)frag.y + h / BlockConfig::Reduction,
 				frag.imageID,
 				TRUE
 			);

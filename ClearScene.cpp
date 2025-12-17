@@ -18,11 +18,11 @@ void ClearScene::Init() {
 }
 
 //リザルト表示用
-void ClearScene::SetBonuses(int time, int lives, int body, int items) {
+void ClearScene::SetBonuses(int time, int lives, int body /*, int items*/) {
 	timeBonus = time;
 	lifeBonus = lives;
 	bodyBonus = body;
-	itemBonus = items;
+	//itemBonus = items;
 }
 
 

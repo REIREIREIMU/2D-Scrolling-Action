@@ -1,4 +1,7 @@
 #include "Input.h"
+#include "Config.h"
+
+const int Analog_DeadZone = 200;  // スティックのデッドゾーン
 
 int Input::padState = 0;
 
@@ -11,51 +14,45 @@ int Input::GetAxisX() {
     int x = 0, y = 0;
     GetJoypadAnalogInput(&x, &y, DX_INPUT_PAD1);
 
-    // アナログスティック
-    if (x < -200) return -1;
-    if (x > 200) return 1;
+    // アナログスティックによる左右判定（デッドゾーン適用）
+    if (x < -Analog_DeadZone) return GlobalConfig::LEFT;
+    if (x >  Analog_DeadZone) return GlobalConfig::RIGHT;
 
     // キーボード
-    //if (CheckHitKey(KEY_INPUT_LEFT)) return -1;
-    //if (CheckHitKey(KEY_INPUT_RIGHT)) return 1;
-    if (CheckHitKey(KEY_INPUT_LEFT)||CheckHitKey(KEY_INPUT_A)) return -1;
-    if (CheckHitKey(KEY_INPUT_RIGHT)||CheckHitKey(KEY_INPUT_D)) return 1;
+    if (CheckHitKey(KEY_INPUT_LEFT) ||CheckHitKey(KEY_INPUT_A)) return GlobalConfig::LEFT;
+    if (CheckHitKey(KEY_INPUT_RIGHT)||CheckHitKey(KEY_INPUT_D)) return GlobalConfig::RIGHT;
 
     return 0;
 }
 
 // ジャンプ（Xbox=A, Keyboard=SPACE/W）
 bool Input::IsJump() {
-    //if (padState & PAD_INPUT_2) return true; // PS4=× / Xbox=B
-    //if (CheckHitKey(KEY_INPUT_SPACE) || CheckHitKey(KEY_INPUT_W)) return true;
-    //return false;
-
-    // コントローラー
-    if (padState & PAD_INPUT_1) return true;    // Xbox=A
-    // if (padState & PAD_INPUT_2) return true; // Xbox=B
-
+    // コントローラ
+    if (padState & PAD_INPUT_1) {
+        return true;
+    }
+ 
     // キーボード
-    if (CheckHitKey(KEY_INPUT_SPACE) || CheckHitKey(KEY_INPUT_W)) return true;
+    if (CheckHitKey(KEY_INPUT_SPACE) || CheckHitKey(KEY_INPUT_W)) {
+        return true;
+    }
 
     return false;
-
 }
 
 // 決定（Xbox=B, Keyboard=ENTER）
 bool Input::IsDecide() {
-    //if (padState & PAD_INPUT_1) return true; // PS4=○ / Xbox=A
-    //if (CheckHitKey(KEY_INPUT_RETURN)) return true;
-    //return false;
-
     // コントローラー
-    // if (padState & PAD_INPUT_1) return true; // Xbox=A
-    if (padState & PAD_INPUT_2) return true;    // Xbox=B
+    if (padState & PAD_INPUT_2) {
+        return true;
+    }
 
     // キーボード
-    if (CheckHitKey(KEY_INPUT_RETURN)) return true;
+    if (CheckHitKey(KEY_INPUT_RETURN)) {
+        return true;
+    }
 
     return false;
-
 }
 
 // デバッグ表示（押されたボタンを出す）
