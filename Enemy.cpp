@@ -61,7 +61,6 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 			vx = -vx;                       // 方向を反転
 			isFacingRight = (vx < 0);       // 画像も反転
 			reversed = true;
-
 			break;		// 反転だけして抜ける
 		}
 	}
@@ -75,9 +74,8 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 		if (nextRect.Intersects(other.rect)) {
 			vx = -vx;                       // 方向を反転
 			isFacingRight = (vx < 0);       // 画像も反転
-			reversed = true;
-						
-			return;		// 反転だけしてループ抜ける
+			reversed = true;	
+			break;		// 反転だけして抜ける	
 		}
 	}
 

@@ -19,16 +19,6 @@ namespace BlockConfig {
 	const int   Reduction  =   18;	//レンガの破片をサイズ調整用
 }
 
-// 配色の管理
-namespace ColorConfig {
-	const int Default_Color = GetColor(200, 200, 200);  // デフォルト色
-	const int Brown         = GetColor(139, 69, 19);    // 茶色
-	const int Light_Brown   = GetColor(160, 82, 45);    // 明るい茶色
-	const int Red           = GetColor(255, 100, 100);  // 赤っぽいレンガ
-	const int Yellow        = GetColor(255, 255, 0);    // 黄色
-	const int Black         = GetColor(0, 0, 0);	    // 黒
-}
-
 // ブロックの種類
 enum class BlockType {
 	None,			// 完全に消えた状態
