@@ -1,5 +1,7 @@
 ﻿#include "MapData.h"
 #include "Config.h"
+#include "CsvReader.h"
+
 
 void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int* blockImages) {
     rawMap = mapLines;
@@ -104,4 +106,32 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
             }
         }
     }
+}
+
+void MapData::LoadMapFromCsv(const std::string& filename, const int* blockImages)
+{
+    CsvReader csv(filename);
+    std::vector<std::string> mapLines;
+
+    int lines = csv.GetLines();
+    for (int y = 0; y < lines; ++y)
+    {
+        std::string row;
+
+        int cols = csv.GetColumns(y);
+        for (int x = 0; x < cols; ++x)
+        {
+            std::string cell = csv.GetString(y, x);
+
+            if (!cell.empty())
+                row += cell[0]; 
+            else
+                row += ' ';       
+        }
+
+        mapLines.push_back(row);
+    }
+
+
+    LoadFromString(mapLines, blockImages);
 }

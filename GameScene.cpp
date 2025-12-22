@@ -4,6 +4,7 @@
 #include "SceneManager.h"
 #include "Input.h"
 #include <algorithm>
+#include "CsvReader.h"
 
 // アイテム種類をランダムで返す
 int GetRandomItemType() { return GetRand(4); }  // 0〜4 のアイテム番号
@@ -105,7 +106,12 @@ extern const std::vector<std::string> mapText_stage3 = {
 
 void GameScene::Init() {
 	// ステージごとにmapTextを切り替える
+
+
+
 	const std::vector<std::string>* stageMap = nullptr;
+
+	
 
 	if		(stageNo == 1) stageMap = &mapText_stage1;
 	else if (stageNo == 2) stageMap = &mapText_stage2;
