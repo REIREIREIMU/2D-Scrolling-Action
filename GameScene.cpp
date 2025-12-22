@@ -146,7 +146,7 @@ void GameScene::Init() {
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
 	// マップ読み込み
-	map.LoadFromString(*stageMap, blockImages);
+	map.LoadMapFromCsv("map/mapData1.csv", blockImages);
 
 	// ブロック配置（プレイヤーより先）
 	{
