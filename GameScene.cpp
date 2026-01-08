@@ -106,20 +106,6 @@ extern const std::vector<std::string> mapText_stage3 = {
 };
 
 void GameScene::Init() {
-	// ステージごとにmapTextを切り替える
-
-
-
-	//const std::vector<std::string>* stageMap = nullptr;
-	const char* stageMap = nullptr;//ファイルパス用
-
-	
-	//文字列からCSV形式に変更
-	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
-	if		(stageNo == 1) stageMap = "map/mapData1.csv";
-	else if (stageNo == 2) stageMap = "map/mapData2.csv";
-	else if (stageNo == 3) stageMap = "map/mapData3.csv";
-	
 	
 	// ブロック画像の読み込み
 	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
@@ -149,33 +135,9 @@ void GameScene::Init() {
 	PlaySoundMem(Main_Bgm, DX_PLAYTYPE_LOOP);
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
-	// マップ読み込み
-	//ここに置くと常に読み込まれてしまうため調整
-	//map.LoadMapFromCsv("map/mapData1.csv", blockImages);
+
+
 	
-	//対応したマップ読み込み
-	map.LoadMapFromCsv(stageMap, blockImages);
-
-	// ブロック配置（プレイヤーより先）
-	{
-		blocks = map.blocks;    // 壁のオブジェクトリスト
-
-		// レンガ破片画像を読み込み
-		int brickPieceImages[2] = {
-			LoadGraph("image/brick_piece1.png"),
-			LoadGraph("image/brick_piece2.png")
-		};
-		Block::SetBrickPieceImages(brickPieceImages, 2);
-	}
-
-	// プレイヤー初期化
-	player.Init(map.playerStart);
-	player.SetBlockImages(blockImages);
-
-	items = map.items;      // アイテムのオブジェクトリスト
-	enemies = map.enemies;  // 敵のオブジェクトリスト
-	itemCollected = std::vector<bool>(items.size(), false);
-
 	enemyImages =       // 敵の描画ファイルの読み込み
 	{ 
 		 LoadGraph("image/Enemy1_Walk_L.png"),
@@ -235,6 +197,41 @@ void GameScene::Init() {
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
 	
+	StageSet();
+
+}
+
+void GameScene::StageSet()
+{
+	const char* stageMap = nullptr;//ファイルパス用
+	//文字列からCSV形式に変更
+	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
+	if (stageNo == 1) stageMap = "map/mapData1.csv";
+	else if (stageNo == 2) stageMap = "map/mapData2.csv";
+	else if (stageNo == 3) stageMap = "map/mapData3.csv";
+
+
+	//対応したマップ読み込み
+	map.LoadMapFromCsv(stageMap, blockImages);
+
+	// ブロック配置（プレイヤーより先）
+	{
+		blocks = map.blocks;    // 壁のオブジェクトリスト
+
+		// レンガ破片画像を読み込み
+		int brickPieceImages[2] = {
+			LoadGraph("image/brick_piece1.png"),
+			LoadGraph("image/brick_piece2.png")
+		};
+		Block::SetBrickPieceImages(brickPieceImages, 2);
+	}
+	// プレイヤー初期化
+	player.Init(map.playerStart);
+	player.SetBlockImages(blockImages);
+
+	items = map.items;      // アイテムのオブジェクトリスト
+	enemies = map.enemies;  // 敵のオブジェクトリスト
+	itemCollected = std::vector<bool>(items.size(), false);
 
 	fallTriggers = map.fallTriggers;//Lの位置受け取り
 	UpTriggers = map.UpTriggers;//Uの位置受け取り
@@ -251,7 +248,7 @@ void GameScene::Update()
 		if (player.GetRect().Intersects(trigger))
 		{
 			stageNo = 2;//落下先のマップ
-			Init();//マップをロードする
+			StageSet();//マップをロードする
 			return;
 		}
 	}
@@ -261,7 +258,8 @@ void GameScene::Update()
 		if (player.GetRect().Intersects(trigger))
 		{
 			stageNo = 1;//落下先のマップ
-			Init();//マップをロードする
+			map.UpTriggers.clear();
+			StageSet();//マップをロードする
 			return;
 		}
 	}

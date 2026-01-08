@@ -43,6 +43,7 @@ public:
 	// ステージ関連
 	explicit GameScene(int stage) : stageNo(stage) {}
 	void Init() override;
+	void StageSet();
 	void Update() override;
 	void Draw() override;
 	bool IsEnd() override;
