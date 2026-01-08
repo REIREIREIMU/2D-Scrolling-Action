@@ -7,11 +7,12 @@
 
 // 静的メンバの定義
 int Block::brickFragmentImages[2] = { -1, -1 };
-int Block::questionImages[3]	  = { -1, -1, -1 };
-int Block::questionImageCount	  = 0;
+int Block::questionImages[3] = { -1, -1, -1 };
+int Block::questionImageCount = 0;
 
-Block::Block(Rect r, BlockType t):
-	rect(r), type(t) {}
+Block::Block(Rect r, BlockType t) :
+	rect(r), type(t) {
+}
 
 void Block::SetImage(int imageID_) {
 	imageID = imageID_;
@@ -30,9 +31,11 @@ bool Block::HasCollision() const {
 	return
 		type == BlockType::GroundA ||
 		type == BlockType::GroundB ||
-		type == BlockType::Brick   ||
-		type == BlockType::Question||
-		type == BlockType::Question_Empty;
+		type == BlockType::Brick ||
+		type == BlockType::Question ||
+		type == BlockType::Question_Empty ||
+		type == BlockType::FallBrick;
+
 }
 
 void Block::SetBrickPieceImages(const int* images, int count)
@@ -60,12 +63,13 @@ void Block::Activate() {
 }
 
 void Block::BreakBrick() {
-	if (type != BlockType::Brick || isBroken) return;
+	if ((type != BlockType::Brick && type != BlockType::FallBrick) || isBroken) return;
+	//レンガもしくは落下Blockのみ適応
 
 	// 今破壊されたら true
 	isBroken = true;
 	// 破壊されたら「何も無い」に
-	type = BlockType::None; 
+	type = BlockType::None;
 	// 画像読み込み
 	imageID = -1;
 
@@ -115,9 +119,9 @@ void Block::Update(double deltaTime) {
 
 	// 破片の移動・寿命
 	for (auto& frag : fragments) {
-		frag.x		  += frag.vx * (float)deltaTime;						// X座標移動
-		frag.y		  += frag.vy * (float)deltaTime;						// Y座標移動
-		frag.vy		  += BlockConfig::Piece_Gravity * (float)deltaTime;		// 重力
+		frag.x += frag.vx * (float)deltaTime;						// X座標移動
+		frag.y += frag.vy * (float)deltaTime;						// Y座標移動
+		frag.vy += BlockConfig::Piece_Gravity * (float)deltaTime;		// 重力
 		frag.lifetime -= (float)deltaTime;									// 破片寿命（減算）
 	}
 	// 時間が過ぎたら破片を削除
@@ -149,7 +153,7 @@ void Block::Draw(int scrollX) const {
 	// 通常ブロック描画(空ブロックは対象外)
 	if (imageID >= 0) {
 		//画像が設定されているなら画像を描画
-		DrawExtendGraph(drawX1, drawY1, drawX2, drawY2,imageID, TRUE );
+		DrawExtendGraph(drawX1, drawY1, drawX2, drawY2, imageID, TRUE);
 	}
 	else {
 		// 画像なしなら色付きボックスで描画
@@ -175,7 +179,7 @@ void Block::Draw(int scrollX) const {
 			break;
 		}
 		//空ブロック以外は仮ブロックを表示する
-		if(type != BlockType::None)
+		if (type != BlockType::None)
 			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Default_Color, TRUE);
 	}
 

@@ -6,17 +6,17 @@
 // ブロック系の設定値
 namespace BlockConfig {
 	const float Question_AnimTime = 0.2f;	   // ？ブロックのフレーム切替秒
-	const float Piece_Gravity	  = 800.0f;    // 破片の落下加速度
-	const float Piece_LiffTime	  = 3.0f;	   // 破片寿命（秒）
-	const int   PieceCount_MIN	  = 2;		   // 破片の最小数
-	const int   PieceCount_MAX	  = 4;		   // 破片の最大数
+	const float Piece_Gravity = 800.0f;    // 破片の落下加速度
+	const float Piece_LiffTime = 3.0f;	   // 破片寿命（秒）
+	const int   PieceCount_MIN = 2;		   // 破片の最小数
+	const int   PieceCount_MAX = 4;		   // 破片の最大数
 
-	const int   frag_MIN_X =   80;	// 左右の初速の最小数
-	const int   frag_MAX_X =  120;  // 左右の初速の最大数
+	const int   frag_MIN_X = 80;	// 左右の初速の最小数
+	const int   frag_MAX_X = 120;  // 左右の初速の最大数
 	const int   frag_MIN_Y = -250;	// 上の初速の最小数
-	const int   frag_MAX_Y =  100;  // 上の初速の最大数
+	const int   frag_MAX_Y = 100;  // 上の初速の最大数
 
-	const int   Reduction  =   18;	//レンガの破片をサイズ調整用
+	const int   Reduction = 18;	//レンガの破片をサイズ調整用
 }
 
 // ブロックの種類
@@ -27,6 +27,7 @@ enum class BlockType {
 	Brick,			// レンガブロック
 	Question,		// ？ブロック
 	Question_Empty, // ？ブロック(空)
+	FallBrick,      // 落下レンガブロック
 	Goal            // ゴールブロック
 };
 

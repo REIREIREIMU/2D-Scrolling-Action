@@ -1,7 +1,7 @@
 ﻿#include "MapData.h"
 #include "Config.h"
 #include "CsvReader.h"
-
+#include "GameScene.h"
 
 void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int* blockImages) {
     rawMap = mapLines;
@@ -61,6 +61,36 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
                 block.SetImage(blockImages[(int)BlockType::Goal]);
                 block.SetBlockImages(blockImages);
                 blocks.push_back(block);
+                break;
+            }
+
+
+            case 'H':
+            {  // 落下ポイント
+                Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::FallBrick);
+                block.SetImage(-1); // あとで画像追加
+                block.SetBlockImages(blockImages);
+                blocks.push_back(block);
+                break;
+
+            }
+
+            case 'L':
+            {
+                fallTriggers.push_back({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE });
+                //Lの座標を保存する
+                //実際に触れたときに処理を行うのはゲームシーン
+                //この形式にしないとロード時に落下先想定のマップに移動する
+                break;
+            }
+
+
+            case 'U'://通常マップに戻る
+            {
+                UpTriggers.push_back({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE });
+
+
+
                 break;
             }
 

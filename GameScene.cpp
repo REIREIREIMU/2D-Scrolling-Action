@@ -5,6 +5,7 @@
 #include "Input.h"
 #include <algorithm>
 #include "CsvReader.h"
+#include "MapData.h"
 
 // アイテム種類をランダムで返す
 int GetRandomItemType() { return GetRand(4); }  // 0〜4 のアイテム番号
@@ -52,7 +53,7 @@ extern const std::vector<std::string> mapText_stage1 = {
 	 "            #?#?#          ###                    ?#####?             //                   1     4            1  2  3  4             ##?##                 ###           ####?       3 1       ?????          2   3   ?#########?                               ##   ##   ##          $    ",
 	 "                      //         //                                   //                                     /##########/                            /             /               /#####/               //                               //   /           ##   ##   ##   ##          $    ",
 	 "      　　          　//         //                         //        //        //                          //          //                          //             //             //#####//              //                              ///   //     ##   ##   ##   ##   ##          $    ",
-	 "     P                //    4    //               A         //        //    A   //   B                     ///          ///        A   B   A       ///      3      ///     A     ///#####///       A     //           A    A    A       //// C ///    ##   ##      A    A    A       ///   ",
+	 "     P                //    4    //              A         //        //    A   //   B                     ///          ///        A   B   A       ///      3      ///     A     ///#####///       A     //           A    A    A       //// C ///    ##   ##      A    A    A       ///   ",
 	 "wwwwwwwwwwwwwwwwwwwwwwwwwww   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww     wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww###wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww                 wAw",//Aタイプの敵は最後の個体を倒すと警告文が出るためここに置く
 	 "===========================   ==============================================================     ==========================================================   ==============================================================================================================================                 ==="
 	 //0   P     1         2         3         4         5         6         7         8         9         A         B         C         D         E         F        10        11        12        13        14        15        16        17        18        19        1A        1B        1C        1D        1E        1F
@@ -109,13 +110,16 @@ void GameScene::Init() {
 
 
 
-	const std::vector<std::string>* stageMap = nullptr;
+	//const std::vector<std::string>* stageMap = nullptr;
+	const char* stageMap = nullptr;//ファイルパス用
 
 	
-
-	if		(stageNo == 1) stageMap = &mapText_stage1;
-	else if (stageNo == 2) stageMap = &mapText_stage2;
-	else if (stageNo == 3) stageMap = &mapText_stage3;
+	//文字列からCSV形式に変更
+	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
+	if		(stageNo == 1) stageMap = "map/mapData1.csv";
+	else if (stageNo == 2) stageMap = "map/mapData2.csv";
+	else if (stageNo == 3) stageMap = "map/mapData3.csv";
+	
 	
 	// ブロック画像の読み込み
 	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
@@ -146,7 +150,11 @@ void GameScene::Init() {
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
 	// マップ読み込み
-	map.LoadMapFromCsv("map/mapData1.csv", blockImages);
+	//ここに置くと常に読み込まれてしまうため調整
+	//map.LoadMapFromCsv("map/mapData1.csv", blockImages);
+	
+	//対応したマップ読み込み
+	map.LoadMapFromCsv(stageMap, blockImages);
 
 	// ブロック配置（プレイヤーより先）
 	{
@@ -226,11 +234,37 @@ void GameScene::Init() {
 	UI_Score		= LoadGraph("image/Score.png");		    //スコアの画像
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
+	
+
+	fallTriggers = map.fallTriggers;//Lの位置受け取り
+	UpTriggers = map.UpTriggers;//Uの位置受け取り
+
 }
 
 // SceneBase から呼ばれる Update（引数なし）
-void GameScene::Update() {
+void GameScene::Update() 
+{
 	Update(deltaTimeForUpdate); // 内部で渡す
+
+	for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
+	{
+		if (player.GetRect().Intersects(trigger))
+		{
+			stageNo = 2;//落下先のマップ
+			Init();//マップをロードする
+			return;
+		}
+	}
+
+	for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
+	{
+		if (player.GetRect().Intersects(trigger))
+		{
+			stageNo = 1;//落下先のマップ
+			Init();//マップをロードする
+			return;
+		}
+	}
 }
 
 // deltaTime付きの本来のUpdate

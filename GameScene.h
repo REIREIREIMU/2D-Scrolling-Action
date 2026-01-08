@@ -67,6 +67,9 @@ private:
 	std::vector<int> enemyImages;
 	std::vector<int> itemImages;
 
+	std::vector<Rect> fallTriggers;//Lの位置を記憶しゲームシーンへ送る
+	std::vector<Rect> UpTriggers;//Uの位置を記憶しゲームシーンへ送る
+
 	Player player;
 	MapData map;
 
