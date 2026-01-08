@@ -199,6 +199,8 @@ void GameScene::Init() {
 	
 	StageSet();
 
+
+
 }
 
 void GameScene::StageSet()
@@ -255,13 +257,16 @@ void GameScene::Update()
 
 	for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
 	{
+		
 		if (player.GetRect().Intersects(trigger))
 		{
 			stageNo = 1;//落下先のマップ
 			map.UpTriggers.clear();
 			StageSet();//マップをロードする
+
 			return;
 		}
+		
 	}
 }
 
@@ -378,6 +383,8 @@ void GameScene::Update(/*float*/ double deltaTime) {
 
 		// レンガブロック破壊判定
 		FatState fat = player.GetFatState();
+		bool FallBlock = (fat == FatState::Fat3 || fat == FatState::Fat4);//3以上で壊れる
+
 
 		//肥満体型をboolで一括り
 		bool isFatEnough = (fat == FatState::Fat1 || fat == FatState::Fat2|| 
@@ -386,6 +393,22 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		Rect footRect    = playerRect;		// プレイヤーの頭位置の矩形
 		     footRect.y += playerRect.h;	// 足元をわずかに下にオフセット
 		     footRect.h  = Foot_R_h;	    // 足の高さ（ヒット判定用）
+
+		if (FallBlock && block.GetType() == BlockType::FallBrick)
+		{
+
+		 // レンガブロックの上を歩いて or 上から乗っかったで破壊(予備)
+			if (footRect.Intersects(block.GetRect()) ||
+			 playerRect.Intersects(block.GetRect()))
+			{
+				block.BreakBrick();
+				score += GameConfig::BREAK_SCORE; // スコア加算
+
+				 //レンガ破壊時の効果音を再生
+				PlaySoundMem(BreakBrick_Sound, DX_PLAYTYPE_BACK);
+				ChangeVolumeSoundMem(soundvolume_, BreakBrick_Sound);
+			}
+		}
 
 		if (isFatEnough && block.GetType() == BlockType::Brick)
 		{
