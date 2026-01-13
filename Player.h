@@ -83,6 +83,8 @@ public:
 	void Grow(std::vector<Block>& blocks);      // 太る処理
 	void Bounce();								// 敵を踏んだ時少し飛ぶ処理
 
+	void ClimbLadder();							//梯子を上る処理
+
 	FatState GetFatState() const;    // enum型の体型
 
 	void SetBlockImages(const int* images);

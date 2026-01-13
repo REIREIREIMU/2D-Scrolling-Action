@@ -576,6 +576,16 @@ void Player::Bounce() {
 	jumpCooldownTimer = PlayerConfig::JUMP_COOLDOWN;
 }
 
+void Player::ClimbLadder()
+{
+	if (CheckHitKey(KEY_INPUT_UP)) {
+		y -= (int)(speed / GlobalConfig::Break_Number);
+	}
+	else if (CheckHitKey(KEY_INPUT_DOWN)) {
+		y += (int)(speed / GlobalConfig::Break_Number);
+	}
+}
+
 FatState Player::GetFatState() const {
 	if (width <= PlayerConfig::WIDTH_THIN)			return FatState::Thin;			// 瘦せ
 	if (width <= PlayerConfig::WIDTH_SLIGHTLY_THIN) return FatState::SlightlyThin;	// やや瘦せ

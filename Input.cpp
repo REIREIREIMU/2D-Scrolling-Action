@@ -25,6 +25,13 @@ int Input::GetAxisX() {
     return 0;
 }
 
+int Input::GetAxisY()
+{
+    if (CheckHitKey(KEY_INPUT_UP) || CheckHitKey(KEY_INPUT_W)) return GlobalConfig::LEFT;
+    if (CheckHitKey(KEY_INPUT_DOWN) || CheckHitKey(KEY_INPUT_S)) return GlobalConfig::RIGHT;
+    
+}
+
 // ジャンプ（Xbox=A, Keyboard=SPACE/W）
 bool Input::IsJump() {
     // コントローラ

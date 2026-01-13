@@ -107,7 +107,9 @@ extern const std::vector<std::string> mapText_stage3 = {
 };
 
 void GameScene::Init() {
+
 	
+
 	// ブロック画像の読み込み
 	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
 	blockImages[(int)BlockType::GroundB]        = LoadGraph("image/GroundB.png");
@@ -137,7 +139,7 @@ void GameScene::Init() {
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
 
-
+	StageSet(map.playerStart);
 	
 	enemyImages =       // 敵の描画ファイルの読み込み
 	{ 
@@ -198,7 +200,7 @@ void GameScene::Init() {
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
 	
-	StageSet(map.playerStart);
+	
 
 
 
@@ -434,6 +436,18 @@ void GameScene::Update(/*float*/ double deltaTime) {
 				ChangeVolumeSoundMem(soundvolume_, BreakBrick_Sound);
 			}
 		}
+
+		if (block.GetType() == BlockType::Ladder)
+		{
+			if (playerRect.Intersects(block.GetRect()))
+			{
+					player.ClimbLadder();
+			}
+		}
+
+
+
+
 	}
 
 	// アイテム取得処理
@@ -510,6 +524,9 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		}
 		++i;
 	}
+
+	
+
 
 	// ゴール判定
 	for (const auto& block : blocks) {
