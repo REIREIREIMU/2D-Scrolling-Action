@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "CsvReader.h"
 #include "MapData.h"
+#include "Player.h"
 
 // アイテム種類をランダムで返す
 int GetRandomItemType() { return GetRand(4); }  // 0〜4 のアイテム番号
@@ -251,6 +252,13 @@ void GameScene::Update()
 		{
 			stageNo = 2;//落下先のマップ
 			StageSet();//マップをロードする
+			
+
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_3, blocks);
+
+
+
+
 			return;
 		}
 	}
@@ -263,6 +271,8 @@ void GameScene::Update()
 			stageNo = 1;//落下先のマップ
 			map.UpTriggers.clear();
 			StageSet();//マップをロードする
+
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
 
 			return;
 		}

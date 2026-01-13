@@ -418,6 +418,59 @@ void Player::Draw(int scrollX) const {
 	}
 }
 
+
+
+
+void Player::SetWidthAndFix(int newWidth, std::vector<Block>& blocks)
+{
+	//Fatごとに固定されたジャンプ力等がなかったためいったんこの形式
+	//のちに体型ごとにジャンプ力等を固定する予定
+	
+
+	// 1) 幅適用（FatState は width から自動判定される）
+	width = newWidth;
+
+	// 2) Grow相当の「ステップ数」を幅から逆算
+	//    Normal から太ると CONVERSION_WIDTH_MAX ずつ増加する仕様。
+	//    幅が Normal 以下（痩せ側）の場合は 0 ステップ扱い。
+	int deltaWidth = width - PlayerConfig::WIDTH_NORMAL;
+	if (deltaWidth < 0) deltaWidth = 0;
+
+	int stepsFromNormalFat = (int)std::ceil(
+		(float)deltaWidth / (float)PlayerConfig::CONVERSION_WIDTH_MAX
+	);
+
+	// 3) 速度・ジャンプ力を「本来と同じ」になるよう再計算
+	//    基準（Normal 時の初期値）
+	float baseSpeed = PlayerConfig::SPEED_MAX; // 例: 8.0f
+	float baseJumpPower = PlayerConfig::JUMP_MAX;  // 例: -24.0f（※負の値）
+
+	// Grow の増分と同じだけ適用
+	float targetSpeed = baseSpeed - PlayerConfig::CONVERSION_SPEED * (float)stepsFromNormalFat;
+	float targetJumpPower = baseJumpPower + PlayerConfig::CONVERSION_JUMP * (float)stepsFromNormalFat;
+
+	// ---- 手書きクランプ（C++11 互換）----
+	// speed を [SPEED_MIN, SPEED_MAX] に収める
+	if (targetSpeed < PlayerConfig::SPEED_MIN) targetSpeed = PlayerConfig::SPEED_MIN;
+	if (targetSpeed > PlayerConfig::SPEED_MAX) targetSpeed = PlayerConfig::SPEED_MAX;
+
+	// jumpPower（負の値）を [JUMP_MAX, JUMP_MIN] に収める
+	// 例：JUMP_MAX=-24（強いジャンプ） ≤ jumpPower ≤ JUMP_MIN=-8（弱いジャンプ）
+	if (targetJumpPower < PlayerConfig::JUMP_MAX) targetJumpPower = PlayerConfig::JUMP_MAX;
+	if (targetJumpPower > PlayerConfig::JUMP_MIN) targetJumpPower = PlayerConfig::JUMP_MIN;
+
+	// 適用
+	speed = targetSpeed;
+	jumpPower = targetJumpPower;
+
+	// 4) 歩行距離リセット＆当たり補正
+	walkedDistance = 0.0f;
+	ResolveStuckAfterResize(blocks);  // private を内部から呼ぶ
+	FixStuckInBlock(blocks);          // private を内部から呼ぶ
+}
+
+
+
 //プレイヤーの描画
 Rect Player::GetRect() const {
 	return { 

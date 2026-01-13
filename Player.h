@@ -75,6 +75,8 @@ public:
 	// 描画（スクロールXオフセット込み）
 	void Draw(int scrollX) const;
 
+	void SetWidthAndFix(int newWidth, std::vector<Block>& blocks);
+
 	// 当たり判定矩形
 	Rect GetRect() const;
 
@@ -104,6 +106,8 @@ public:
 
 	bool isDead = false;      // 死亡フラグ
 	float deathTimer = 0.0f;  // 死亡後の経過時間（秒）
+
+	void SetFatState(FatState state, std::vector<Block>& blocks);
 
 	// アニメーション関連
 	void LoadImages();
