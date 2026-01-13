@@ -177,6 +177,9 @@ void Block::Draw(int scrollX) const {
 		case BlockType::Goal:		// 黒
 			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Black, TRUE);
 			break;
+		case BlockType::Ladder:		// 黒
+			DrawBox(drawX1, drawY1, drawX2, drawY2, ColorConfig::Black, TRUE);
+			break;
 		}
 		//空ブロック以外は仮ブロックを表示する
 		if (type != BlockType::None)

@@ -27,6 +27,7 @@ public:
 
     std::vector<Rect> fallTriggers;//Lの座標を保存する
     std::vector<Rect> UpTriggers;//Uの座標を保存する
+	Rect    returnPoint;//プレイヤーが戻ってくる位置を保存する
 private:
     std::vector<std::string> rawMap;     // 元のマップ文字列 
 };

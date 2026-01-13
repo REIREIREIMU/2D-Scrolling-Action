@@ -64,6 +64,16 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
                 break;
             }
 
+            case 'T'://梯子
+            {
+                Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::Ladder);
+                block.SetImage(blockImages[(int)BlockType::Ladder]);
+                block.SetBlockImages(blockImages);
+                blocks.push_back(block);
+                break;
+            }
+
+
 
             case 'H':
             {  // 落下ポイント
@@ -88,11 +98,15 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
             case 'U'://通常マップに戻る
             {
                 UpTriggers.push_back({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE });
-
-
-
                 break;
             }
+
+            case 'R'://プレイヤーが戻ってくる位置
+            {
+                returnPoint={ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE };
+                break;
+            }
+
 
             case 'P': {  // プレイヤーの開始位置
                 playerStart = { px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE };
@@ -123,6 +137,8 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
                 enemies.push_back(e3);
                 break;
             }
+
+           
 
                     //case 'D': {   // Enemy type 3（将来用）
                     //    Enemy e4({ px, py, Config::TILE_SIZE, Config::TILE_SIZE }, 3, -1, 1.0f);

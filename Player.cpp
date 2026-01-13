@@ -602,11 +602,11 @@ void Player::ResolveStuckAfterResize(const std::vector<Block>& blocks)
 		if (playerRect.Intersects(blockRect)) {
 			// 右側がめり込んでいる
 			if (playerRect.x < blockRect.x && playerRect.x + playerRect.w > blockRect.x) {
-				x -= GlobalConfig::LEFT;   // 左にずらす
+				x -= (playerRect.x+playerRect.w)-blockRect.x;   // 左にずらす
 			}
 			// 左側がめり込んでいる
 			else if (playerRect.x >= blockRect.x && blockRect.x + blockRect.w > playerRect.x) {
-				x += GlobalConfig::RIGHT;  // 右にずらす
+				x += (blockRect.x + blockRect.w) - playerRect.x;  // 右にずらす
 			}
 
 			// 確実に更新された座標で再チェック

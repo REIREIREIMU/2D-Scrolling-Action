@@ -198,13 +198,13 @@ void GameScene::Init() {
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
 	
-	StageSet();
+	StageSet(map.playerStart);
 
 
 
 }
 
-void GameScene::StageSet()
+void GameScene::StageSet(const Rect &position)
 {
 	const char* stageMap = nullptr;//ファイルパス用
 	//文字列からCSV形式に変更
@@ -229,7 +229,7 @@ void GameScene::StageSet()
 		Block::SetBrickPieceImages(brickPieceImages, 2);
 	}
 	// プレイヤー初期化
-	player.Init(map.playerStart);
+	player.Init(position);
 	player.SetBlockImages(blockImages);
 
 	items = map.items;      // アイテムのオブジェクトリスト
@@ -251,7 +251,7 @@ void GameScene::Update()
 		if (player.GetRect().Intersects(trigger))
 		{
 			stageNo = 2;//落下先のマップ
-			StageSet();//マップをロードする
+			StageSet(map.playerStart);//マップをロードする
 			
 
 			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_3, blocks);
@@ -270,7 +270,7 @@ void GameScene::Update()
 		{
 			stageNo = 1;//落下先のマップ
 			map.UpTriggers.clear();
-			StageSet();//マップをロードする
+			StageSet(map.returnPoint);//マップをロードする
 
 			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
 

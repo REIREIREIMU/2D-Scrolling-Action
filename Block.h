@@ -28,7 +28,8 @@ enum class BlockType {
 	Question,		// ？ブロック
 	Question_Empty, // ？ブロック(空)
 	FallBrick,      // 落下レンガブロック
-	Goal            // ゴールブロック
+	Goal,            // ゴールブロック
+	Ladder         // はしごブロック
 };
 
 // レンガ破片(演習用)
