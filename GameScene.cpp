@@ -437,17 +437,6 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			}
 		}
 
-		if (block.GetType() == BlockType::Ladder)
-		{
-			if (playerRect.Intersects(block.GetRect()))
-			{
-					player.ClimbLadder();
-			}
-		}
-
-
-
-
 	}
 
 	// アイテム取得処理
@@ -525,7 +514,20 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		++i;
 	}
 
-	
+
+
+	// 梯子判定
+	bool onLadder = false;
+	for (const auto& block : blocks) {
+		if (block.GetType() != BlockType::Ladder) {
+			continue;
+		}
+		if (playerRect.Intersects(block.GetRect())) {
+			onLadder = true;
+			break;
+		}
+	}
+	player.SetOnLadder(onLadder);
 
 
 	// ゴール判定

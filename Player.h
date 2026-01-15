@@ -106,6 +106,9 @@ public:
 	bool IsInvincible() const { return isInvincible; }
 	bool CanControl()   const { return canControl; }
 
+	//重力のオンオフ（梯子用）
+	void SetOnLadder(bool value) { isClimbing = value; }
+
 	bool isDead = false;      // 死亡フラグ
 	float deathTimer = 0.0f;  // 死亡後の経過時間（秒）
 
@@ -189,6 +192,9 @@ private:
 	// 無敵＆操作フラグ
 	bool isInvincible = false;
 	bool canControl = true;
+
+
+	bool isClimbing = false;		//梯子を登っている時に重力オフ
 
 	// サイズ変更後の壁埋まり対応
 	//void ResolveStuckAfterResize(const std::vector<Block>& blocks);

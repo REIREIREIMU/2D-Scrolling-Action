@@ -170,15 +170,28 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 	}
 
 	// 重力
-	velocityY += PlayerConfig::GRAVITY * deltaTime *
-		PlayerConfig::SPEED_CORRECTION;
+	if (!isClimbing)
+	{
+		velocityY += PlayerConfig::GRAVITY * deltaTime *
+			PlayerConfig::SPEED_CORRECTION;
 
-	// 終端速度制限
-	if (velocityY > PlayerConfig::TERMINAL_VELOCITY)
-		velocityY = PlayerConfig::TERMINAL_VELOCITY;
 
-	// Y座標に反映
-	y += (int)(velocityY * deltaTime * PlayerConfig::SPEED_CORRECTION);
+		// 終端速度制限
+		if (velocityY > PlayerConfig::TERMINAL_VELOCITY)
+			velocityY = PlayerConfig::TERMINAL_VELOCITY;
+
+		// Y座標に反映
+		y += (int)(velocityY * deltaTime * PlayerConfig::SPEED_CORRECTION);
+
+	}
+
+	//梯子を登る処理
+	else if (isClimbing)
+	{
+		velocityY = 0.0f; //梯子を登っている時は重力無効
+		onGround = true;
+		ClimbLadder();
+	}
 
 	// 着地判定
 	onGround = (startFreezeTimer > 0.0f);
@@ -454,7 +467,7 @@ void Player::SetWidthAndFix(int newWidth, std::vector<Block>& blocks)
 	if (targetSpeed < PlayerConfig::SPEED_MIN) targetSpeed = PlayerConfig::SPEED_MIN;
 	if (targetSpeed > PlayerConfig::SPEED_MAX) targetSpeed = PlayerConfig::SPEED_MAX;
 
-	// jumpPower（負の値）を [JUMP_MAX, JUMP_MIN] に収める
+	// jumpPower（負の値）を [JUMP_MAX, JUMP_MIN] に収める		
 	// 例：JUMP_MAX=-24（強いジャンプ） ≤ jumpPower ≤ JUMP_MIN=-8（弱いジャンプ）
 	if (targetJumpPower < PlayerConfig::JUMP_MAX) targetJumpPower = PlayerConfig::JUMP_MAX;
 	if (targetJumpPower > PlayerConfig::JUMP_MIN) targetJumpPower = PlayerConfig::JUMP_MIN;
@@ -581,7 +594,7 @@ void Player::ClimbLadder()
 	if (CheckHitKey(KEY_INPUT_UP)) {
 		y -= (int)(speed / GlobalConfig::Break_Number);
 	}
-	else if (CheckHitKey(KEY_INPUT_DOWN)) {
+	if (CheckHitKey(KEY_INPUT_DOWN)) {
 		y += (int)(speed / GlobalConfig::Break_Number);
 	}
 }
