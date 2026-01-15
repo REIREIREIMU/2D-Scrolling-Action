@@ -522,7 +522,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		if (block.GetType() != BlockType::Ladder) {
 			continue;
 		}
-		if (playerRect.Intersects(block.GetRect())) {
+		if (playerRect.Intersects(block.GetRect())&&FatState::SlightlyFat>=player.GetFatState()) {
 			onLadder = true;
 			break;
 		}
