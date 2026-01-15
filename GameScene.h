@@ -74,9 +74,14 @@ private:
 	Player player;
 	MapData map;
 
-	// ブロック画像
+	//ブロック画像
+	//ブロックに当たり判定がない場合はここに画像を置く
 	int blockImages[(int)BlockType::Question + 1];
+	int	goalBlockImage = -1; // ゴールブロック画像用
+	int	ladderBlockImage = -1; // はしごブロック画像用
 	
+	
+
 	// レンガ破片画像(2つ)
 	std::array<int, 2> brickPieceImages = { -1, -1 };
 	int backgroundImage = -1; // 背景画像用

@@ -117,6 +117,8 @@ void GameScene::Init() {
 	blockImages[(int)BlockType::Question]       = LoadGraph("image/Question_Block_1.png");
 	blockImages[(int)BlockType::Question_Empty] = LoadGraph("image/Question_Empty.png");
 	blockImages[(int)BlockType::Goal]			= LoadGraph("image/Goal.png");
+	blockImages[(int)BlockType::Ladder]			= LoadGraph("image/Ladder.png");
+	blockImages[(int)BlockType::FallBrick]		= LoadGraph("image/Fall_Brick.png");
 
 	// ？ブロック用は3枚の連番画像を読み込む
 	int questionImgs[3] = {
@@ -255,8 +257,8 @@ void GameScene::Update()
 			stageNo = 2;//落下先のマップ
 			StageSet(map.playerStart);//マップをロードする
 			
-
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_3, blocks);
+			
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_3, blocks);//体系を3に固定する
 
 
 
@@ -274,7 +276,7 @@ void GameScene::Update()
 			map.UpTriggers.clear();
 			StageSet(map.returnPoint);//マップをロードする
 
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を1に固定する
 
 			return;
 		}

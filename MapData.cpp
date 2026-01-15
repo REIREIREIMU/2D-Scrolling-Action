@@ -78,7 +78,7 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
             case 'H':
             {  // 落下ポイント
                 Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::FallBrick);
-                block.SetImage(-1); // あとで画像追加
+                block.SetImage(blockImages[(int)BlockType::FallBrick]);
                 block.SetBlockImages(blockImages);
                 blocks.push_back(block);
                 break;
