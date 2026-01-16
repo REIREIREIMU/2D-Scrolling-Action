@@ -75,7 +75,7 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 			vx = -vx;                       // 方向を反転
 			isFacingRight = (vx < 0);       // 画像も反転
 			reversed = true;	
-			break;		// 反転だけして抜ける	
+			return;		// 反転だけして抜ける(returnにしないと反転がバグる)
 		}
 	}
 
@@ -118,7 +118,7 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 		}
 
 		// プレイヤーの方向を向く（x座標比較）
-		if (playerRect.x + playerRect.w / 2 < rect.x + rect.w / 2) {
+		if (playerRect.x + playerRect.w / GlobalConfig::Break_Number < rect.x + rect.w / GlobalConfig::Break_Number) {
 			vx = GlobalConfig::LEFT;  // プレイヤーが左にいる → 左向き
 			isFacingRight = true;
 
@@ -169,8 +169,8 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 				enemy3AnimTimer_ = 0.0f;
 
 				// 弾発射処理
-				int dx = (playerRect.x + playerRect.w / 2) - (rect.x + rect.w / 2);
-				int dy = (playerRect.y + playerRect.h / 2) - (rect.y + rect.h / 2);
+				int dx = (playerRect.x + playerRect.w / GlobalConfig::Break_Number) - (rect.x + rect.w / GlobalConfig::Break_Number);
+				int dy = (playerRect.y + playerRect.h / GlobalConfig::Break_Number) - (rect.y + rect.h / GlobalConfig::Break_Number);
 				float baseAngle = std::atan2(dy, dx);
 
 				for (int i = -1; i <= 1; ++i) {
@@ -279,7 +279,7 @@ void Enemy::Draw(int scrollX, int ImageID) const
 		Rect r = b.GetRect();
 		int bx = r.x - scrollX;
 		int by = r.y;
-		DrawBox(bx, by, bx + r.w, by + r.h, GetColor(255, 0, 0), TRUE);
+		DrawBox(bx, by, bx + r.w, by + r.h, ColorConfig::Red, TRUE);
 	}
 }
 
