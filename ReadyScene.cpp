@@ -1,4 +1,5 @@
 #include "ReadyScene.h"
+#include "Config.h"
 #include <string>
 
 void ReadyScene::Init() {
@@ -28,9 +29,15 @@ void ReadyScene::Update() {
 }
 
 void ReadyScene::Draw() {
+	int bgWidth, bgHeight;
 
 	// ”wŒi•`‰æ
-	if (backgroundImage >= 0) DrawGraph(0, 0, backgroundImage, TRUE);
+	if (backgroundImage >= 0) {
+		GetGraphSize(backgroundImage, &bgWidth, &bgHeight);
+		for (int x = 0; x < GlobalConfig::SCREEN_WIDTH; x += bgWidth) {
+			DrawGraph(x, 0, backgroundImage, TRUE);
+		}
+	}
 
 	//”–•‚Ì‘Ñ‰æ‘œ
 	if (ReadyImage		>= 0) DrawGraph(0, 0, ReadyImage, TRUE);
