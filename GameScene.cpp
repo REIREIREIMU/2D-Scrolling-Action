@@ -540,24 +540,33 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			// 消す前に型を保存しておく（erase 後に参照しないように）
 			int killedType = enemies[i].type;
 
-			enemies.erase(enemies.begin() + i);	// 敵消滅
-			player.Bounce();					// 敵を踏んだらプレイヤーが跳ねる
-			stomped = true;						// 踏んだら true
-			score += GameConfig::ENEMY_SCORE;	// スコア加算
+			FatState fat = player.GetFatState();
 
-			// 音の再生は保存した killedType を使う
-			if (killedType == 0 || killedType == 1)
+			if (FatState::Normal < fat)
 			{
-				PlaySoundMem(Kill_Sound_1, DX_PLAYTYPE_BACK);
-				ChangeVolumeSoundMem(soundvolume_, Kill_Sound_1);
+				enemies.erase(enemies.begin() + i);	// 敵消滅
+				score += GameConfig::ENEMY_SCORE;	// スコア加算
+				// 音の再生は保存した killedType を使う
+				if (killedType == 0 || killedType == 1)
+				{
+					PlaySoundMem(Kill_Sound_1, DX_PLAYTYPE_BACK);
+					ChangeVolumeSoundMem(soundvolume_, Kill_Sound_1);
+				}
+				else if (killedType == 2)
+				{
+					PlaySoundMem(Kill_Sound_2, DX_PLAYTYPE_BACK);
+					ChangeVolumeSoundMem(soundvolume_, Kill_Sound_2);
+				}
+				// erase したので i は増やさない（continueして次ループへ）
+				continue;
 			}
-			else if (killedType == 2)
+			else
 			{
-				PlaySoundMem(Kill_Sound_2, DX_PLAYTYPE_BACK);
-				ChangeVolumeSoundMem(soundvolume_, Kill_Sound_2);
+				player.Bounce();					// 敵を踏んだらプレイヤーが跳ねる
 			}
-			// erase したので i は増やさない（continueして次ループへ）
-			continue;
+			
+			stomped = true;						// 踏んだら true
+			
 		}
 
 		// まだ踏んでいなければ、衝突判定（プレイヤー死亡）
