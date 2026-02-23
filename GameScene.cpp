@@ -245,10 +245,56 @@ void GameScene::StageSet(const Rect &position)
 
 }
 
+
+
+void GameScene::SetDeltaTime(float dt) 
+{
+	deltaTimeForUpdate = dt;
+}
+
+
+
 // SceneBase から呼ばれる Update（引数なし）
 void GameScene::Update() 
 {
-	Update(deltaTimeForUpdate); // 内部で渡す
+	// ① 経過時間を進める（SceneManager->SetDeltaTime で受け取った dt が入っている前提）
+	elapsedSec += deltaTimeForUpdate;
+
+
+
+	//Update(deltaTimeForUpdate); // 内部で渡す
+		// --- ステージ2固定（10秒間）を監視し、期間内は毎フレーム 体型3 を保証 ---
+	if (stageNo == 2 && stage2TimeSec >= 0.0f)
+	{
+		const float t = elapsedSec - stage2TimeSec;
+
+		if (t >= 0.0f && t < STAGE2_SteatTime)
+		{
+			// 10秒以内 → 体型3を毎フレーム再適用（保険）
+			// ※ 無駄な再設定を避けたい場合は、現在の体型/幅を比較してから適用してください
+
+
+
+
+			if (player.GetFatState() != FatState::Fat1) 
+			{
+				player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
+			}
+
+
+
+		}
+		else if (t >= STAGE2_SteatTime)
+		{
+			// 10秒経過 → 固定解除
+			stage2TimeSec = -1.0f;
+		}
+	}
+
+
+
+
+	Update(deltaTimeForUpdate);
 
 	for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
 	{
@@ -256,16 +302,21 @@ void GameScene::Update()
 		{
 			stageNo = 2;//落下先のマップ
 			StageSet(map.playerStart);//マップをロードする
-			
-			
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_3, blocks);//体系を3に固定する
 
 
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を3に固定する
 
+
+			// ここから10秒間固定カウント開始
+			stage2TimeSec = elapsedSec;
 
 			return;
 		}
 	}
+
+
+
+	
 
 	for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
 	{
@@ -664,7 +715,6 @@ bool GameScene::IsEnd() { return endFlag; }
 
 int GameScene::NextScene() { return nextSceneID; } // nextSceneID を返す
 
-void GameScene::SetDeltaTime(float dt) { deltaTimeForUpdate = dt; }
 
 bool GameScene::CheckCollision(const Rect& a, const Rect& b) {
 	return !(a.x + a.w <= b.x ||

@@ -44,7 +44,7 @@ public:
 	explicit GameScene(int stage) : stageNo(stage) {}
 	void Init() override;
 	void StageSet(const Rect &position);
-	void Update() override;
+	void Update();
 	void Draw() override;
 	bool IsEnd() override;
 	int NextScene() override;
@@ -60,7 +60,6 @@ private:
 	int scrollX     = 0;         // スクロール位置（整数型に修正）
 	bool endFlag    = false;     // シーン終了フラグ
 	int nextSceneID = 0;         // 次のシーンID（0:タイトル, 2:ゲームオーバー, 3:クリア）
-
 	std::vector<Block> blocks;
 	std::vector<Item> items;
 	std::vector<bool> itemCollected;
@@ -138,4 +137,15 @@ private:
 	int pixel    = 22; // 微調整用
 
 	int stageNo;  // 現在ステージ
+
+	// 経過時間（Updateで加算する想定）
+	float elapsedSec = 0.0f;
+
+	// ステージ2の10秒効果用
+	float stage2TimeSec = -1.0f; // -1: 無効（未入場/効果なし）
+	static constexpr float STAGE2_SteatTime = 10.0f; // 10秒固定
+
+
+	
+
 };
