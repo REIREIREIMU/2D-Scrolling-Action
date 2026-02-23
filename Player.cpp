@@ -528,6 +528,48 @@ void Player::Grow(std::vector<Block>& blocks) {
 	FixStuckInBlock(blocks);		  // 体型変化後にブロックに埋まっていないか確認
 }
 
+void Player::SetFatState(FatState state, std::vector<Block>& blocks)
+{
+	int newWidth = width;
+
+	switch (state)
+	{
+	case FatState::Thin:
+		newWidth = PlayerConfig::WIDTH_THIN;
+		break;
+
+	case FatState::SlightlyThin:
+		newWidth = PlayerConfig::WIDTH_SLIGHTLY_THIN;
+		break;
+
+	case FatState::Normal:
+		newWidth = PlayerConfig::WIDTH_NORMAL;
+		break;
+
+	case FatState::SlightlyFat:
+		newWidth = PlayerConfig::WIDTH_SLIGHTLY_FAT;
+		break;
+
+	case FatState::Fat1:
+		newWidth = PlayerConfig::WIDTH_FAT_1;
+		break;
+
+	case FatState::Fat2:
+		newWidth = PlayerConfig::WIDTH_FAT_2;
+		break;
+
+	case FatState::Fat3:
+		newWidth = PlayerConfig::WIDTH_FAT_3;
+		break;
+
+	case FatState::Fat4:
+		newWidth = PlayerConfig::WIDTH_FAT_4;
+		break;
+	}
+
+	SetWidthAndFix(newWidth, blocks);
+}
+
 void Player::LoadImages() {
 	idleImage     = LoadGraph("image/player_idle.png");
 	jumpImage     = LoadGraph("image/player_jump.png");

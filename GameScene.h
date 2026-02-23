@@ -145,7 +145,8 @@ private:
 	float stage2TimeSec = -1.0f; // -1: 無効（未入場/効果なし）
 	static constexpr float STAGE2_SteatTime = 10.0f; // 10秒固定
 
-
-	
+	//敵と当たった時の無敵時間用
+	float lastHitTime=0;
+	float damageCooldown = 1.0f;
 
 };

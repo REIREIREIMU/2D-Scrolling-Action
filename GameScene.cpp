@@ -562,11 +562,29 @@ void GameScene::Update(/*float*/ double deltaTime) {
 
 		// まだ踏んでいなければ、衝突判定（プレイヤー死亡）
 		if (!stomped && CheckCollision(playerRect, enemyRect)) {
-			player.isDead = true;
+			int fat = (int)player.GetFatState();
+			if (lastHitTime <= 0.0f)
+			{
+				if (fat == (int)FatState::Thin)
+				{
+					player.isDead = true;
+				}
+				else
+				{
+					fat--;
+					player.SetFatState((FatState)fat, blocks);
+					lastHitTime = damageCooldown;
+				}
+			}
 		}
 		++i;
 	}
 
+	//当たった際の無敵時間を計測
+	if (lastHitTime > 0.0f)
+	{
+		lastHitTime -= deltaTime;
+	}
 
 
 	// 梯子判定
