@@ -148,5 +148,4 @@ private:
 	//敵と当たった時の無敵時間用
 	float lastHitTime=0;
 	float damageCooldown = 1.0f;
-
 };

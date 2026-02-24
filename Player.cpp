@@ -339,13 +339,16 @@ void Player::Draw(int scrollX) const {
 		// 左向き
 		DrawExtendGraph(right, top, left, bottom, handle, TRUE);
 	}
+}
 
+void Player::DrawUI(int scrollX) const
+{
 	// 残り距離表示
 	int uiHandle = Image;
 
 	//警告用
 	int ui_Warning_bg = UI_WARNING_BD;
-	int ui_Warning    = UI_WARNING;
+	int ui_Warning = UI_WARNING;
 
 	switch (GetFatState()) {
 	case FatState::Thin:
@@ -378,9 +381,9 @@ void Player::Draw(int scrollX) const {
 				PlaySoundMem(Warning_Sound, DX_PLAYTYPE_BACK);
 				ChangeVolumeSoundMem(soundvolume_ / GlobalConfig::Break_Number, Warning_Sound);
 				// 通常は常時表示(画面中央)
-				DrawGraph(0, 0, uiHandle,      TRUE);
+				DrawGraph(0, 0, uiHandle, TRUE);
 				DrawGraph(0, 0, ui_Warning_bg, TRUE);
-				DrawGraph(0, 0, ui_Warning,    TRUE);
+				DrawGraph(0, 0, ui_Warning, TRUE);
 			}
 			else
 			{
@@ -412,14 +415,14 @@ void Player::Draw(int scrollX) const {
 
 	else if (ratio <= PlayerConfig::DIS_BAR_YELLOW_ZONE)
 		barHandle = UI_Bar_Yellow;
-	
+
 	// 中身の「ソース画像」のサイズを取得
 	int srcW = 0, srcH = 0;
 	if (barHandle >= 0) GetGraphSize(barHandle, &srcW, &srcH);
 
 	// 描画する幅（左から ratio 倍だけ切り出す）
-	int srcFilledW  = (int)(srcW * ratio);
-	
+	int srcFilledW = (int)(srcW * ratio);
+
 	// 枠を描画
 	if (UI_Bar_Case >= 0) {
 		DrawGraph(barX, barY, UI_Bar_Case, TRUE);

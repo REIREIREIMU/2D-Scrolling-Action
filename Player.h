@@ -74,6 +74,7 @@ public:
 
 	// 描画（スクロールXオフセット込み）
 	void Draw(int scrollX) const;
+	void DrawUI(int scrollX) const;
 
 	void SetWidthAndFix(int newWidth, std::vector<Block>& blocks);
 

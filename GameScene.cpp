@@ -595,6 +595,10 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	{
 		lastHitTime -= deltaTime;
 	}
+	else if(lastHitTime<0.0f)
+	{
+		lastHitTime = 0.0f;
+	}
 
 
 	// 梯子判定
@@ -701,9 +705,16 @@ void GameScene::Draw() {
 	}
 
 	// プレイヤーが生きていれば描画（当たり判定と一致させる）
-	if (!player.IsDead()) 
+
+	if(!player.IsDead()) 
 	{
-		player.Draw(scrollX); 
+		int hitTime = (int)(lastHitTime*10);
+		if (hitTime  % 2 == 0)
+		{
+			player.Draw(scrollX);
+		}
+	
+		player.DrawUI(scrollX);
 	}
 
 
