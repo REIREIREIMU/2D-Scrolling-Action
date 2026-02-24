@@ -545,6 +545,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			if (FatState::Normal < fat)
 			{
 				enemies.erase(enemies.begin() + i);	// 敵消滅
+				player.Bounce();
 				score += GameConfig::ENEMY_SCORE;	// スコア加算
 				// 音の再生は保存した killedType を使う
 				if (killedType == 0 || killedType == 1)
@@ -700,7 +701,14 @@ void GameScene::Draw() {
 	}
 
 	// プレイヤーが生きていれば描画（当たり判定と一致させる）
-	if (!player.IsDead()) { player.Draw(scrollX); }
+	if (!player.IsDead()) 
+	{
+		player.Draw(scrollX); 
+	}
+
+
+
+
 
 	// フェードアウト描画
 	if (isGoalFade) {
