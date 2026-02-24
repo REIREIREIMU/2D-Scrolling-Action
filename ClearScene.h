@@ -2,6 +2,7 @@
 #include "SceneBase.h"
 #include <string>
 #include <DxLib.h>
+#include "SceneManager.h"
 
 // クリア画面のスコア演出設定
 namespace ClearConfig {
@@ -31,7 +32,8 @@ enum class ScorePhase {
 	TimeBonus,    // 1: タイムボーナスフェーズ
 	LifeBonus,	  // 2: 残機ボーナスフェーズ
 	BodyBonus,	  // 3: 体型ボーナスフェーズ
-	ItemBonus,    // 4: アイテムボーナスフェーズ
+	SPBonus,	  // 4: ステージ2限定スペシャルボーナスフェーズ
+	//ItemBonus,    // 4: アイテムボーナスフェーズ
 	TotalScore    // 5: 総合計・ランクフェーズ
 };
 
@@ -49,6 +51,7 @@ private:
 	int timeBonus;       // 残り時間ボーナス
 	int lifeBonus;       // 残機ボーナス
 	int bodyBonus;       // 体型評価ボーナス
+	int SPBonus;		 // ステージ2限定のスペシャルボーナス
 	//int itemBonus;     // やりこみアイテムボーナス
 
 	// 文字の表示座標(X)
@@ -83,5 +86,5 @@ public:
 	void SetScore(int score) { score_ = score; }
 
 	//リザルト画面用の関数
-	void SetBonuses(int time, int lives, int body /*, int items*/);
+	void SetBonuses(int time, int life, int body, int sp);  // ← ここを拡張
 };

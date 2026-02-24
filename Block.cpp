@@ -31,6 +31,7 @@ bool Block::HasCollision() const {
 	return
 		type == BlockType::GroundA ||
 		type == BlockType::GroundB ||
+		type == BlockType::GroundC ||
 		type == BlockType::Brick ||
 		type == BlockType::Question ||
 		type == BlockType::Question_Empty ||

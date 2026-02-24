@@ -4,7 +4,8 @@
 #include <DxLib.h>
 
 // Ready‰æ–Ê‚Ìİ’è
-namespace ReadySceneConfig {
+namespace ReadySceneConfig 
+{
 	const int  AUTO_END_FRAMES = 120; // 2•b‚Å©“®I—¹i60FPSj
 }
 
