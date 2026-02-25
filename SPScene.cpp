@@ -1,32 +1,35 @@
 #include "SPScene.h"
 #include "Input.h"
-//SPはステージ2のみで獲得したスコアを記録・表示してから画面遷移する内容を想定して作成
+#include "Config.h"
+
+// SP はステージ2のみで獲得したスコア（SPscore_）を表示してから画面遷移する
 void SPScene::Init()
 {
     endFlag = false;
+    quitFlag = false;
     waitTimer_ = 0;
-    ClearImage = LoadGraph("image/BonusClear.png");//SPのみのScore内容(普通にスコアに加算される)
-    //SPステージが終わったときに別でSPScoreのみを表示する内容
-    //SPScore+ScoreでScoreを増やす⇒10秒経過してボーナスタイムが終わる⇒獲得したSPScoreのみを表示する(このクラスで実装を想定した)
-    //獲得したSPScoreを表示したらステージ1に戻る(可能ならステージ1の初期位置希望)
 
-    Clear_XboxImage = LoadGraph("image/BonusClear_Xbox.png");
+    // 背景画像（存在しなくても致命ではないため、ロード失敗は無視）
+    ClearImage = LoadGraph("image/BonusClear.png");      // キーボード用
+    Clear_XboxImage = LoadGraph("image/BonusClear_Xbox.png"); // コントローラー用
+
+    // 今回は「獲得した SPScore をそのまま見せる」仕様なのでアニメはしない
     displayScore = SPscore_;
-
 }
-
-
-
-
 
 void SPScene::Update()
 {
-
-    // 約1秒待機してからキー入力を受付
+    // 入力受付までの待機
     if (waitTimer_ > SPConfig::WAIT_FRAMES && Input::IsDecide()) {
         endFlag = true;
     }
 
+    // 一定時間で自動遷移（10秒）
+    if (waitTimer_ >= SPConfig::SHOW_DURATION_FRAMES) {
+        endFlag = true;
+    }
+
+    // 経過フレームを進める
     waitTimer_++;
 
     // コントローラー接続確認
@@ -35,16 +38,31 @@ void SPScene::Update()
 
 void SPScene::Draw()
 {
-    // 画像が読み込まれていたら表示
+    // 背景
     if (controllerConnected && Clear_XboxImage >= 0) {
-        // コントローラー接続時
         DrawGraph(0, 0, Clear_XboxImage, TRUE);
     }
     else if (!controllerConnected && ClearImage >= 0) {
-        // キーボード用
         DrawGraph(0, 0, ClearImage, TRUE);
     }
 
+    // フォントサイズは ClearScene に合わせる（Config に依存）
+    SetFontSize(GlobalConfig::FONT_SIZE);
+
+    // 見出し
+    DrawFormatString(x_a, y_a - 60, ColorConfig::Black, "SP SCORE");
+
+    // SP スコア（6桁ゼロ埋め）
+    DrawFormatString(x_a, y_a, ColorConfig::Black, "%06d", displayScore);
+
+    // 必要なら SP で取得したアイテム数などを表示（コメントアウト例）
+    // DrawFormatString(x_a, y_b, ColorConfig::Black, "ITEMS: %d", itemCount_);
+
+    // 操作ガイダンス（背景にテキストがある場合は省略してもOK）
+    // 1秒経過後は押下でスキップできることを示す
+    if (waitTimer_ > SPConfig::WAIT_FRAMES) {
+        DrawFormatString(x_a, y_e, ColorConfig::Black, "Press ENTER / A to continue");
+    }
 }
 
 bool SPScene::IsEnd()
@@ -54,5 +72,8 @@ bool SPScene::IsEnd()
 
 int SPScene::NextScene()
 {
-    return (int)SceneState::Game_Scene; 
+    // ここではゲーム本編に戻す（== ステージ1の初期位置復帰は SceneManager 側で対応）
+    // 例：SceneManager に ResetToStage(1) や SetStage(1) があるなら、
+    //     遷移前または遷移直後に呼び出してください。
+    return (int)SceneState::Game_Scene;
 }
