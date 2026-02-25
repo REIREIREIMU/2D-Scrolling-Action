@@ -24,6 +24,7 @@ enum class BlockType {
 	None,			// 完全に消えた状態
 	GroundA,		// 地面ブロックA
 	GroundB,		// 地面ブロックB
+	GroundC,		// 地面ブロックC
 	Brick,			// レンガブロック
 	Question,		// ？ブロック
 	Question_Empty, // ？ブロック(空)

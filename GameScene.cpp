@@ -7,6 +7,7 @@
 #include "CsvReader.h"
 #include "MapData.h"
 #include "Player.h"
+#include "SPScene.h"
 
 // アイテム種類をランダムで返す
 int GetRandomItemType() { return GetRand(4); }  // 0〜4 のアイテム番号
@@ -113,6 +114,7 @@ void GameScene::Init() {
 	// ブロック画像の読み込み
 	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
 	blockImages[(int)BlockType::GroundB]        = LoadGraph("image/GroundB.png");
+	blockImages[(int)BlockType::GroundC]		= LoadGraph("image/GroundC.png");
 	blockImages[(int)BlockType::Brick]          = LoadGraph("image/Block.png");
 	blockImages[(int)BlockType::Question]       = LoadGraph("image/Question_Block_1.png");
 	blockImages[(int)BlockType::Question_Empty] = LoadGraph("image/Question_Empty.png");
@@ -164,7 +166,7 @@ void GameScene::Init() {
 	};
 
 	// ステージの描画ファイルの読み込み
-	backgroundImage = LoadGraph("image/background.png");
+	backgroundImage = LoadGraph("image/NewBackGround.png");
 
 	//player.SetBlockImages(blockImages);
 
@@ -232,6 +234,8 @@ void GameScene::StageSet(const Rect &position)
 		};
 		Block::SetBrickPieceImages(brickPieceImages, 2);
 	}
+
+
 	// プレイヤー初期化
 	player.Init(position);
 	player.SetBlockImages(blockImages);
@@ -257,38 +261,46 @@ void GameScene::SetDeltaTime(float dt)
 // SceneBase から呼ばれる Update（引数なし）
 void GameScene::Update() 
 {
-	// ① 経過時間を進める（SceneManager->SetDeltaTime で受け取った dt が入っている前提）
+	//経過時間を進める（SceneManager->SetDeltaTime で受け取った dt が入っている前提）
 	elapsedSec += deltaTimeForUpdate;
 
 
 
 	//Update(deltaTimeForUpdate); // 内部で渡す
-		// --- ステージ2固定（10秒間）を監視し、期間内は毎フレーム 体型3 を保証 ---
+	// --- ステージ2固定（10秒間）を監視し、期間内は毎フレーム 体型3 を保証 ---
 	if (stageNo == 2 && stage2TimeSec >= 0.0f)
 	{
 		const float t = elapsedSec - stage2TimeSec;
 
 		if (t >= 0.0f && t < STAGE2_SteatTime)
 		{
-			// 10秒以内 → 体型3を毎フレーム再適用（保険）
-			// ※ 無駄な再設定を避けたい場合は、現在の体型/幅を比較してから適用してください
 
 
-
-
+				//10秒以内 → 体型3を毎フレーム再適用（保険）
 			if (player.GetFatState() != FatState::Fat1) 
 			{
 				player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
 			}
 
 
-
 		}
 		else if (t >= STAGE2_SteatTime)
 		{
 			// 10秒経過 → 固定解除
+
 			stage2TimeSec = -1.0f;
+
+			// ★ 次回のために差分基準化フラグを落とす
+			spCountActive = false;
+
+
 		}
+	}
+
+	else
+	{
+		// ステージ2以外、または監視無効時は安全のためフラグを落とす
+		spCountActive = false;
 	}
 
 
@@ -646,8 +658,8 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		player.SetControllable(false);
 
 		fadeAlpha += GameConfig::FADE_STEP; // 1フレームで暗くなる量（調整可）
-		if (fadeAlpha >= GameConfig::ALPHA) {
-			fadeAlpha = GameConfig::ALPHA;
+		if (fadeAlpha >= GlobalConfig::ALPHA) {
+			fadeAlpha = GlobalConfig::ALPHA;
 			endFlag = true;
 			// クリアシーン に遷移
 			nextSceneID = (int)SceneState::Clear_Scene;
@@ -663,20 +675,24 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	}
 }
 
-void GameScene::Draw() {
+void GameScene::Draw() 
+{
 
 	// 背景描画
-	if (backgroundImage >= 0) {
-		DrawBox(0, 0, GlobalConfig::SCREEN_WIDTH, GlobalConfig::SCREEN_HEIGHT, ColorConfig::Light_Cyan, TRUE);
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, GameConfig::ALPHA_CONSTANT);
+	if (backgroundImage >= 0) 
+	{
+		DrawBox(0, 0, GlobalConfig::SCREEN_WIDTH, GlobalConfig::SCREEN_HEIGHT, ColorConfig::White, TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, GlobalConfig::ALPHA_CONSTANT);
 
 		// 背景をスクロールに応じて描画（ループ表示例）
 		int bgWidth, bgHeight;
 		GetGraphSize(backgroundImage, &bgWidth, &bgHeight);
 		int bgX = -(int(scrollX) % bgWidth);
-		for (int x = bgX; x < GlobalConfig::SCREEN_WIDTH; x += bgWidth) {
+		for (int x = bgX; x < GlobalConfig::SCREEN_WIDTH; x += bgWidth) 
+		{
 			DrawGraph(x, 0, backgroundImage, TRUE);
 		}
+
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 
@@ -743,11 +759,13 @@ void GameScene::Draw() {
 		);
 	}
 
+
+
 	SetFontSize(GameConfig::UI_FONT_SCORE);
 	DrawFormatString( x_a, y_a, ColorConfig::White, " %06d", score);
 	
-	SetFontSize(GameConfig::UI_FONT_TIMER);
-	DrawFormatString( x_b, y_b, ColorConfig::Yellow, " %d", (int)timeLimit);
+	
+	
 	
 	DrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
 	
@@ -755,6 +773,9 @@ void GameScene::Draw() {
 	DrawGraph(0, 0, UI_Score, TRUE);		// スコア表示
 	DrawGraph(0, 0, UI_Player_Lives, TRUE);	// 残機表示
 	DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
+
+	SetFontSize(GameConfig::UI_FONT_TIMER);
+	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
 }
 
 bool GameScene::IsEnd() { return endFlag; }

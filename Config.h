@@ -19,6 +19,9 @@ namespace GlobalConfig {
     const int RIGHT = +1;               // 右
 
     // フルスクリーン切替キー（F1）はコード内で使用
+
+    const float ALPHA = 255.0f;   // 透明度
+    const int   ALPHA_CONSTANT = 200;      // アルファー定数
 }
 
 // 配色の管理

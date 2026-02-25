@@ -14,6 +14,7 @@ enum class SceneState {
 	GameOver_Scene,  // 2: ゲームオーバー画面
 	Clear_Scene,     // 3: クリア画面
 	Game_Scene,      // 4: プレイ画面
+	SP_Scene         // 5: ステージ2限定のスペシャルシーン（例：ミニゲームやボーナスステージ）
 };
 
 class SceneManager {
@@ -23,6 +24,7 @@ private:
 	static int timeBonus;	  // タイムボーナス
 	static int lifeBonus;	  // 残機ボーナス
 	static int bodyBonus;	  // 体型ボーナス
+	static int SPBonus;	  // ステージ2限定のスペシャルボーナス
 	//static int itemBonus;	  // アイテムボーナス
 
 	int	 sceneID      = -1;
@@ -37,6 +39,11 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 	SceneBase* GetCurrentScene();
+
+
+
+
+
 
 	//次のステージへ
 	void NextStage();
@@ -58,6 +65,11 @@ public:
 	static void SetBodyBonus(int b)   { bodyBonus = b; }		// 体型ボーナスをセット
 	static int GetBodyBonus()		  { return bodyBonus; }		// 体型の受け渡し
 
+	static void SetSPScore(int s)	  { SPBonus = s; }			// ステージ2限定のスコアをセット
+	static int GetSPScore()			  { return SPBonus; }		// ステージ2限定のスコアの受け渡し
+
 	//static void SetItemBonus(int i) { itemBonus = i; }		// アイテムボーナスをセット
 	//static int GetItemBonus()		  { return itemBonus; }		// アイテムの受け渡し
+
+	int SPScore; // ステージ2限定のスコアを保持する変数
 };

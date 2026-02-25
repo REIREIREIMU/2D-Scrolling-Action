@@ -8,7 +8,7 @@ void TitleScene::Init() {
 	waitTimer_ = 0;
 	scrollX    = 0;
 
-	backgroundImage = LoadGraph("image/background.png"); 
+	backgroundImage = LoadGraph("image/NewBackGround.png"); 
 	TitleImage		= LoadGraph("image/Title.png");
 	StartImage		= LoadGraph("image/Start.png");
 	Start_XboxImage = LoadGraph("image/Start_Xbox.png");
@@ -64,7 +64,7 @@ void TitleScene::Draw(){
 
 	// ”wŒi‰æ‘œ‚ª“Ç‚Ýž‚Ü‚ê‚Ä‚¢‚½‚ç•\Ž¦
 	if (backgroundImage >= 0) {
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, GlobalConfig::ALPHA_CONSTANT);
 
 		int bgWidth, bgHeight;
 		GetGraphSize(backgroundImage, &bgWidth, &bgHeight);
