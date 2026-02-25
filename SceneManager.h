@@ -25,6 +25,7 @@ private:
 	static int lifeBonus;	  // 残機ボーナス
 	static int bodyBonus;	  // 体型ボーナス
 	static int SPBonus;	  // ステージ2限定のスペシャルボーナス
+	static int itemCount;//ボーナスステージのアイテム取得カウント
 	//static int itemBonus;	  // アイテムボーナス
 
 	int	 sceneID      = -1;
@@ -71,5 +72,4 @@ public:
 	//static void SetItemBonus(int i) { itemBonus = i; }		// アイテムボーナスをセット
 	//static int GetItemBonus()		  { return itemBonus; }		// アイテムの受け渡し
 
-	int SPScore; // ステージ2限定のスコアを保持する変数
 };

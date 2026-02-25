@@ -25,6 +25,7 @@ public:
     std::vector<Enemy> enemies;          // 敵一覧
     Rect               playerStart;      // プレイヤー初期位置
 
+
     std::vector<Rect> fallTriggers;//Lの座標を保存する
     std::vector<Rect> UpTriggers;//Uの座標を保存する
 	Rect    returnPoint;//プレイヤーが戻ってくる位置を保存する

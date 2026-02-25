@@ -12,6 +12,7 @@ int SceneManager::timeBonus	  = 0;
 int SceneManager::lifeBonus   = 0;
 int SceneManager::bodyBonus   = 0;
 int SceneManager::SPBonus = 0;
+int SceneManager::itemCount = 0;
 //int SceneManager::itemBonus   = 0;
 
 SceneManager::SceneManager() {
@@ -71,9 +72,9 @@ void SceneManager::ChangeScene(int id) {
 
 	case (int)SceneState::SP_Scene:
 	{
-		auto* clear = new SPScene(this);  // SceneManager ポインタを渡す
-		clear->SPSetScore(SPScore);		 //スコアを渡す
-		currentScene = clear;				 //現在のシーンに設定
+		auto* SPclear = new SPScene(this);  // SceneManager ポインタを渡す
+		SPclear->SPSetScore(SPBonus,itemCount);		 //スコアを渡す
+		currentScene = SPclear;				 //現在のシーンに設定
 		break;
 	}
 	case (int)SceneState::Game_Scene:

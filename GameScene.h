@@ -52,12 +52,13 @@ public:
 
 	void SetLives(int lives) { playerLives = lives; } // 残機を受け取る
 	
-
+	void SetScore(int sc, int SPsc) { score = sc, SPscore = SPsc; }
 
 	// --- SP用の集計と差分検出 ---
 	int  SPscore = 0;   // 通常scoreとは独立のSP専用累計
 	int  prevScoreForSP = 0;   // 差分用に直近の通常scoreを保持
 	bool spCountActive = false; // 監視ウィンドウに入った直後の1回だけ基準化するためのフラグ
+	int SPitemGetCount = 0;
 
 
 private:
@@ -91,6 +92,7 @@ private:
 	// レンガ破片画像(2つ)
 	std::array<int, 2> brickPieceImages = { -1, -1 };
 	int backgroundImage = -1; // 背景画像用
+	int bonusBackGroundImg = -1;//ボーナス画面背景用
 
 	// 死亡時のエフェクトの処理
 	int deathEffectImg = -1;	// 爆発エフェクト画像
@@ -156,8 +158,7 @@ private:
 	float lastHitTime=0;
 	float damageCooldown = 1.0f;
 
-
-
-
+	bool isMap2Start = false;
+	bool isMap2Clear=false;
 
 };
