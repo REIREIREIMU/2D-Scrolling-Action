@@ -340,10 +340,10 @@ void GameScene::Update()
 		
 		if (player.GetRect().Intersects(trigger))
 		{
-			isMap2Start = true;
+			isMap2Clear = true;
 			SceneManager::SetSPScore(SPscore);
 			SceneManager::SetItemCount(SPitemGetCount);
-			SceneManager::SetSPScore(SPscore);
+			SceneManager::SetBonusClear(isMap2Clear);
 			StopSoundMem(Main_Bgm);
 			endFlag = true;
 			nextSceneID = (int)SceneState::SP_Scene;
@@ -355,7 +355,7 @@ void GameScene::Update()
 	{
 		if (isMap2Start!=false&&isMap2Clear != true)
 		{
-			isMap2Start = true;
+			isMap2Clear = true;
 			SceneManager::SetSPScore(SPscore);
 			SceneManager::SetItemCount(SPitemGetCount);
 			SceneManager::SetBonusClear(isMap2Clear);
