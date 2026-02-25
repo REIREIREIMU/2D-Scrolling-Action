@@ -139,8 +139,14 @@ void GameScene::Init() {
 	PlaySoundMem(Main_Bgm, DX_PLAYTYPE_LOOP);
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
-
-	StageSet(map.playerStart);
+	if (!isMap2Clear)
+	{
+		StageSet(map.playerStart);
+	}
+	else
+	{
+		StageSet(map.returnPoint);
+	}
 	
 	enemyImages =       // 敵の描画ファイルの読み込み
 	{ 
@@ -276,9 +282,9 @@ void GameScene::Update()
 
 
 				//10秒以内 → 体型3を毎フレーム再適用（保険）
-			if (player.GetFatState() != FatState::Fat1) 
+			if (player.GetFatState() != FatState::Normal) 
 			{
-				player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
+				player.SetWidthAndFix(PlayerConfig::WIDTH_NORMAL, blocks);
 			}
 
 
@@ -334,35 +340,27 @@ void GameScene::Update()
 		
 		if (player.GetRect().Intersects(trigger))
 		{
-			stageNo = 1;//落下先のマップ
-			map.UpTriggers.clear();
-			StageSet(map.returnPoint);//マップをロードする
-
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を1に固定する
-
-			isMap2Clear = true;
-
-			return;
+			isMap2Start = true;
+			SceneManager::SetSPScore(SPscore);
+			SceneManager::SetItemCount(SPitemGetCount);
+			SceneManager::SetSPScore(SPscore);
+			StopSoundMem(Main_Bgm);
+			endFlag = true;
+			nextSceneID = (int)SceneState::SP_Scene;
 		}
 		
 	}
 
-	if (elapsedSec-stage2TimeSec>10)
+	if (elapsedSec-stage2TimeSec>=10)
 	{
 		if (isMap2Start!=false&&isMap2Clear != true)
 		{
-			stageNo = 1;//落下先のマップ
-			map.UpTriggers.clear();
-			StageSet(map.returnPoint);//マップをロードする
-
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を1に固定する
-
-			isMap2Clear = true;
-
-			
+			isMap2Start = true;
+			SceneManager::SetSPScore(SPscore);
+			SceneManager::SetItemCount(SPitemGetCount);
+			SceneManager::SetBonusClear(isMap2Clear);
 			StopSoundMem(Main_Bgm);
 			endFlag = true;
-			// ゲームオーバー　に遷移
 			nextSceneID = (int)SceneState::SP_Scene;
 		}
 		

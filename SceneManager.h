@@ -26,6 +26,7 @@ private:
 	static int bodyBonus;	  // 体型ボーナス
 	static int SPBonus;	  // ステージ2限定のスペシャルボーナス
 	static int itemCount;//ボーナスステージのアイテム取得カウント
+	static bool isBonusClear;//ボーナスステージから戻った時の座標を決めるために使うk
 	//static int itemBonus;	  // アイテムボーナス
 
 	int	 sceneID      = -1;
@@ -68,6 +69,13 @@ public:
 
 	static void SetSPScore(int s)	  { SPBonus = s; }			// ステージ2限定のスコアをセット
 	static int GetSPScore()			  { return SPBonus; }		// ステージ2限定のスコアの受け渡し
+
+	static void SetItemCount(int s)   { itemCount = s; }
+	static int GetItemCount()		  { return itemCount; }
+
+	static void SetBonusClear(bool c) { isBonusClear = c; }
+	static bool GetBonusClear()       { return isBonusClear; }
+
 
 	//static void SetItemBonus(int i) { itemBonus = i; }		// アイテムボーナスをセット
 	//static int GetItemBonus()		  { return itemBonus; }		// アイテムの受け渡し

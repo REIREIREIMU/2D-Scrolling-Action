@@ -40,7 +40,7 @@ namespace GameConfig {
 class GameScene : public SceneBase {
 public:
 	// ステージ関連
-	explicit GameScene(int stage) : stageNo(stage) {}
+	explicit GameScene(int stage,bool start) : stageNo(stage),isMap2Clear(start) {}
 	void Init() override;
 	void StageSet(const Rect &position);
 	void Update();
@@ -53,6 +53,8 @@ public:
 	void SetLives(int lives) { playerLives = lives; } // 残機を受け取る
 	
 	void SetScore(int sc, int SPsc) { score = sc, SPscore = SPsc; }
+
+	void SetBonusClear(bool clear) { isMap2Clear = clear; }
 
 	// --- SP用の集計と差分検出 ---
 	int  SPscore = 0;   // 通常scoreとは独立のSP専用累計
