@@ -24,11 +24,11 @@ public:
     std::vector<Item>  items;            // アイテム一覧
     std::vector<Enemy> enemies;          // 敵一覧
     Rect               playerStart;      // プレイヤー初期位置
-
+    Rect               returnPoint;//プレイヤーが戻ってくる位置を保存する
 
     std::vector<Rect> fallTriggers;//Lの座標を保存する
     std::vector<Rect> UpTriggers;//Uの座標を保存する
-	Rect    returnPoint;//プレイヤーが戻ってくる位置を保存する
+	
 private:
     std::vector<std::string> rawMap;     // 元のマップ文字列 
 };

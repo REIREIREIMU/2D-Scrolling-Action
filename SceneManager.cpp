@@ -13,6 +13,7 @@ int SceneManager::lifeBonus   = 0;
 int SceneManager::bodyBonus   = 0;
 int SceneManager::SPBonus = 0;
 int SceneManager::itemCount = 0;
+bool SceneManager::isBonusClear = false;
 //int SceneManager::itemBonus   = 0;
 
 SceneManager::SceneManager() {
@@ -79,8 +80,9 @@ void SceneManager::ChangeScene(int id) {
 	}
 	case (int)SceneState::Game_Scene:
 	{
-		auto* game = new GameScene(CurrentStage); // 引数でステージを指定
+		auto* game = new GameScene(CurrentStage,isBonusClear); // 引数でステージを指定
 		game->SetLives(PlayerLives);			  // 残機を渡す
+		game->SetScore(resultScore,SPBonus);
 		currentScene = game;
 		break;
 	}
