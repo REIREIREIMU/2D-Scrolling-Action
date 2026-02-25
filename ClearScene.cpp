@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "Config.h"
 #include "SceneManager.h"
-#include "SPScene.h"
 
 void ClearScene::Init() {
 	endFlag = false;
@@ -15,11 +14,10 @@ void ClearScene::Init() {
 }
 
 //リザルト表示用
-void ClearScene::SetBonuses(int time, int lives, int body,  int sp/*, int items*/) {
+void ClearScene::SetBonuses(int time, int lives, int body /*, int items*/) {
 	timeBonus = time;
 	lifeBonus = lives;
 	bodyBonus = body;
-	SPBonus = sp;
 	//itemBonus = items;
 }
 
@@ -82,21 +80,6 @@ void ClearScene::Update() {
             timer = Time_Reset;
         }
         break;
-
-    case ScorePhase::SPBonus :
-        if (timer > ClearConfig::PHASE3_SEC) 
-        {
-            displayScore += SPBonus;
-            SPBonus = 0;
-        }
-        if (timer > ClearConfig::PHASE_NEXT_SEC) 
-        {
-            phase = ScorePhase::TotalScore;  // 総合計・ランクフェーズへ移行
-            timer = Time_Reset;
-        }
-		break;
-
-
     // アイテム加算
     //case ScorePhase::ItemBonus :
     //    if (timer > ClearConfig::PHASE4_SEC) {
@@ -112,7 +95,7 @@ void ClearScene::Update() {
     // 最終スコアを算出してランク決定
     case ScorePhase::TotalScore :
         int finalScore = displayScore + timeBonus + lifeBonus *
-            ClearConfig::LIFE_ADD_SCORE + bodyBonus + SPBonus /*+ itemBonus*/;
+            ClearConfig::LIFE_ADD_SCORE + bodyBonus /*+ itemBonus*/;
         if (rank.empty())      { DecideRank(finalScore); }
         if (Input::IsDecide()) { endFlag = true; }
         break;
@@ -164,8 +147,7 @@ void ClearScene::DecideRank(int totalScore) {
     else                                                 rank = "S"; // Sランク：スコア15001以上
 }
 
-bool ClearScene::IsEnd() 
-{
+bool ClearScene::IsEnd() {
 	return endFlag;
 }
 

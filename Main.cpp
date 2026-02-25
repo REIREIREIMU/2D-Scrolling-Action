@@ -5,8 +5,8 @@
 #include "Input.h"
 
 // ウィンドウモード管理
-bool g_isWindowMode = false;  // 初期はフルスクリーン表示
-//bool g_isWindowMode = true;     // 初期はウィンドウ表示
+//bool g_isWindowMode = false;  // 初期はフルスクリーン表示
+bool g_isWindowMode = true;     // 初期はウィンドウ表示
 
 // DxLib を初期化する関数（切り替え対応）
 void InitDxLib(bool windowMode) {

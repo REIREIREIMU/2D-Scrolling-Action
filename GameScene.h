@@ -34,7 +34,8 @@ namespace GameConfig {
 
 	const int FONT_SIZE = 20;		 // フォントサイズ
 
-
+	const float ALPHA		   = 255.0f;   // 透明度
+	const int   ALPHA_CONSTANT = 128;      // アルファー定数
 }
 
 class GameScene : public SceneBase {
@@ -52,14 +53,6 @@ public:
 
 	void SetLives(int lives) { playerLives = lives; } // 残機を受け取る
 	
-
-
-	// --- SP用の集計と差分検出 ---
-	int  SPscore = 0;   // 通常scoreとは独立のSP専用累計
-	int  prevScoreForSP = 0;   // 差分用に直近の通常scoreを保持
-	bool spCountActive = false; // 監視ウィンドウに入った直後の1回だけ基準化するためのフラグ
-
-
 private:
 	void Update(/*float*/ double deltaTime);
 	bool CheckCollision(const Rect& a, const Rect& b);
@@ -155,9 +148,4 @@ private:
 	//敵と当たった時の無敵時間用
 	float lastHitTime=0;
 	float damageCooldown = 1.0f;
-
-
-
-
-
 };

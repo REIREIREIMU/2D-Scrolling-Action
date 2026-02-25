@@ -31,16 +31,6 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
                 blocks.push_back(block);
                 break;
             }
-            case '%':
-            {  // 地面ブロックC
-                Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::GroundC);
-                block.SetImage(blockImages[(int)BlockType::GroundC]);
-                block.SetBlockImages(blockImages);
-                blocks.push_back(block);
-                break;
-            }
-
-
 
             case '#': {  // レンガブロック
                 Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::Brick);
@@ -65,11 +55,6 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
                 blocks.push_back(block);
                 break;
             }
-
-
-
-
-
 
             case '$': {  // ゴールブロック
                 Block block({ px, py, GlobalConfig::TILE_SIZE, GlobalConfig::TILE_SIZE }, BlockType::Goal);

@@ -4,14 +4,12 @@
 #include "GameOverScene.h"
 #include "ClearScene.h"
 #include "ReadyScene.h"
-#include "SPScene.h"
 
 // static 変数の実体定義
 int SceneManager::resultScore = 0;
 int SceneManager::timeBonus	  = 0;
 int SceneManager::lifeBonus   = 0;
 int SceneManager::bodyBonus   = 0;
-int SceneManager::SPBonus = 0;
 //int SceneManager::itemBonus   = 0;
 
 SceneManager::SceneManager() {
@@ -62,17 +60,8 @@ void SceneManager::ChangeScene(int id) {
 		clear->SetScore(resultScore);		 //スコアを渡す
 		clear->SetBonuses(timeBonus,
 						  lifeBonus,
-					      bodyBonus,
-						  SPBonus
+					      bodyBonus
 						  /*, itemBonus*/);
-		currentScene = clear;				 //現在のシーンに設定
-		break;
-	}
-
-	case (int)SceneState::SP_Scene:
-	{
-		auto* clear = new SPScene(this);  // SceneManager ポインタを渡す
-		clear->SPSetScore(SPScore);		 //スコアを渡す
 		currentScene = clear;				 //現在のシーンに設定
 		break;
 	}

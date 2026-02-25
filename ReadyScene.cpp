@@ -6,7 +6,7 @@ void ReadyScene::Init() {
 	endFlag = false;
 	waitTimer_ = 0;
 
-	backgroundImage = LoadGraph("image/NewBackGround.png");
+	backgroundImage = LoadGraph("image/Background.png");
 	ReadyImage      = LoadGraph("image/Ready_BG.png");
 	LivesImage      = LoadGraph("image/Ready_Player.png");
 
