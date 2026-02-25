@@ -108,9 +108,6 @@ extern const std::vector<std::string> mapText_stage3 = {
 };
 
 void GameScene::Init() {
-
-	
-
 	// ブロック画像の読み込み
 	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
 	blockImages[(int)BlockType::GroundB]        = LoadGraph("image/GroundB.png");
@@ -167,6 +164,8 @@ void GameScene::Init() {
 
 	// ステージの描画ファイルの読み込み
 	backgroundImage = LoadGraph("image/NewBackGround.png");
+	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
+
 
 	//player.SetBlockImages(blockImages);
 
@@ -321,7 +320,7 @@ void GameScene::Update()
 
 			// ここから10秒間固定カウント開始
 			stage2TimeSec = elapsedSec;
-
+			isMap2Start = true;
 			return;
 		}
 	}
@@ -341,10 +340,39 @@ void GameScene::Update()
 
 			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を1に固定する
 
+			isMap2Clear = true;
+
 			return;
 		}
 		
 	}
+
+	if (elapsedSec-stage2TimeSec>10)
+	{
+		if (isMap2Start!=false&&isMap2Clear != true)
+		{
+			stageNo = 1;//落下先のマップ
+			map.UpTriggers.clear();
+			StageSet(map.returnPoint);//マップをロードする
+
+			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を1に固定する
+
+			isMap2Clear = true;
+
+			
+			StopSoundMem(Main_Bgm);
+			endFlag = true;
+			// ゲームオーバー　に遷移
+			nextSceneID = (int)SceneState::SP_Scene;
+		}
+		
+
+
+		return;
+	}
+
+
+
 }
 
 // deltaTime付きの本来のUpdate
@@ -507,10 +535,19 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	// アイテム取得処理
 	for (size_t i = 0; i < items.size(); ++i) {
 		if (!itemCollected[i] && CheckCollision(playerRect, items[i].rect)) {
-			itemCollected[i] = true;
-			player.Grow(blocks);
-			score += GameConfig::ITEM_SCORE; // スコア加算
-
+			if (!isMap2Start)
+			{
+				itemCollected[i] = true;
+				player.Grow(blocks);
+				score += GameConfig::ITEM_SCORE; // スコア加算
+			}
+			else
+			{
+				itemCollected[i] = true;
+				score += GameConfig::ITEM_SCORE; // スコア加算
+				SPscore += GameConfig::ITEM_SCORE; // ボーナススコア加算
+				SPitemGetCount++;
+			}
 			//取得効果音を再生
 			PlaySoundMem(Eat_Sound, DX_PLAYTYPE_BACK);
 			ChangeVolumeSoundMem(soundvolume_, Eat_Sound);
@@ -582,7 +619,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			
 		}
 
-		// まだ踏んでいなければ、衝突判定（プレイヤー死亡）
+		// まだ踏んでいなければ、衝突判定
 		if (!stomped && CheckCollision(playerRect, enemyRect)) {
 			int fat = (int)player.GetFatState();
 			if (lastHitTime <= 0.0f)
@@ -679,7 +716,7 @@ void GameScene::Draw()
 {
 
 	// 背景描画
-	if (backgroundImage >= 0) 
+	if (backgroundImage >= 0&&!isMap2Start) 
 	{
 		DrawBox(0, 0, GlobalConfig::SCREEN_WIDTH, GlobalConfig::SCREEN_HEIGHT, ColorConfig::White, TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, GlobalConfig::ALPHA_CONSTANT);
@@ -694,6 +731,10 @@ void GameScene::Draw()
 		}
 
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+	else if(isMap2Start)
+	{
+		DrawGraph(0, 0, bonusBackGroundImg, TRUE);
 	}
 
 	// 敵描画
