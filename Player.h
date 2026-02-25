@@ -1,55 +1,56 @@
-﻿#pragma once
+﻿#pragma	once
 #include "Types.h"
 #include "Block.h"
 #include <vector>
 #include <algorithm>
 #include <DxLib.h>
+#include "Sprite.h"
 
 // プレイヤー設定値
 namespace PlayerConfig {
 
-	const int HEIGHT			  = 40;   //高さ(身長)
-	const int WIDTH_THIN		  = 10;   //横幅(瘦せ時)
+	const int HEIGHT = 40;   //高さ(身長)
+	const int WIDTH_THIN = 10;   //横幅(瘦せ時)
 	const int WIDTH_SLIGHTLY_THIN = 25;   //横幅(やや瘦せ時)
-	const int WIDTH_NORMAL		  = 40;   //横幅(普通時)
-	const int WIDTH_SLIGHTLY_FAT  = 80;   //横幅(やや肥満時)
-	const int WIDTH_FAT_1		  = 120;  //横幅(肥満１度時)
-	const int WIDTH_FAT_2		  = 160;  //横幅(肥満２度時)
-	const int WIDTH_FAT_3		  = 280;  //横幅(肥満３度時)
-	const int WIDTH_FAT_4		  = 320;  //横幅(肥満４度時)
+	const int WIDTH_NORMAL = 40;   //横幅(普通時)
+	const int WIDTH_SLIGHTLY_FAT = 80;   //横幅(やや肥満時)
+	const int WIDTH_FAT_1 = 120;  //横幅(肥満１度時)
+	const int WIDTH_FAT_2 = 160;  //横幅(肥満２度時)
+	const int WIDTH_FAT_3 = 280;  //横幅(肥満３度時)
+	const int WIDTH_FAT_4 = 320;  //横幅(肥満４度時)
 
 	const float SPEED_MIN = 2.0f;   //移動速度(最高値)(1.0f)
 	const float SPEED_MAX = 8.0f;   //移動速度(最低値)(3.0f)
-	
+
 	const float JUMP_MIN = -8.0f;  //ジャンプ力(最高値)(- 8.0f)
-	const float JUMP_MAX  = -24.0f; //ジャンプ力(最低値)(-24.0f)
-	
-	const float GRAVITY           = 1.00f; //重力(0.25f)->(1.00f)
+	const float JUMP_MAX = -24.0f; //ジャンプ力(最低値)(-24.0f)
+
+	const float GRAVITY = 1.00f; //重力(0.25f)->(1.00f)
 	const float TERMINAL_VELOCITY = 20.0f; // 終端速度
 
-	const int   FALL_LIMIT_Y         = 800;
-	const float DISTANCE_SHRINK_MIN  = 750.0f;   // この距離移動すると痩せる(肥満時)500
-	const float DISTANCE_SHRINK_NOR  = 1000.0f;  // この距離移動すると痩せる(通常時)1000
-	const float DISTANCE_SHRINK_MAX  = 1500.0f;  // この距離移動すると痩せる(瘦せ時)1500
-	const float DISTANCE_TO_SHRINK   = 1.0f ;    // ゲージの表示管理
+	const int   FALL_LIMIT_Y = 800;
+	const float DISTANCE_SHRINK_MIN = 750.0f;   // この距離移動すると痩せる(肥満時)500
+	const float DISTANCE_SHRINK_NOR = 1000.0f;  // この距離移動すると痩せる(通常時)1000
+	const float DISTANCE_SHRINK_MAX = 1500.0f;  // この距離移動すると痩せる(瘦せ時)1500
+	const float DISTANCE_TO_SHRINK = 1.0f;    // ゲージの表示管理
 	const int   DISTANCE_FIXED_VALUE = 500;      // ゲージの表示の固定値
-	
-	const float JUMP_COOLDOWN    = 0.10f;     // ジャンプ後のクールタイム
-	
+
+	const float JUMP_COOLDOWN = 0.10f;     // ジャンプ後のクールタイム
+
 	const int   COLLISION_MARGIN = 4;         // 衝突判定用マージン
 	const float SPEED_CORRECTION = 60.0f;     // deltaTimeの補正
 
-	const float CONVERSION_JUMP      = 2.00f;   //体型変化時の変化値(ジャンプ力)
+	const float CONVERSION_JUMP = 2.00f;   //体型変化時の変化値(ジャンプ力)
 	const int   CONVERSION_WIDTH_MIN = 15;		//体型変化時の変化値(小幅)
 	const int   CONVERSION_WIDTH_MAX = 40;		//体型変化時の変化値(大幅)
-	const float CONVERSION_SPEED	 = 0.5f;    //体型変化時の変化値(移動速度)
+	const float CONVERSION_SPEED = 0.5f;    //体型変化時の変化値(移動速度)
 
 	const float START_FREEZE_SEC = 3.0f; // 開始直後の固定時間
-	const float THIN_WARN_SEC    = 3.0f; // 警告表示時間
-	const float THIN_BLINK_INT   = 0.6f; // 警告点滅間隔
+	const float THIN_WARN_SEC = 3.0f; // 警告表示時間
+	const float THIN_BLINK_INT = 0.6f; // 警告点滅間隔
 
 	const float DIS_BAR_YELLOW_ZONE = 0.5f;  // 満腹ゲージがここ位で色が変わる（黄色）
-	const float DIS_BAR_RED_ZONE    = 0.35f; // 満腹ゲージがここ位で色が変わる（赤）
+	const float DIS_BAR_RED_ZONE = 0.35f; // 満腹ゲージがここ位で色が変わる（赤）
 }
 
 // プレイヤーの体型ステータスを定義
@@ -98,7 +99,7 @@ public:
 	// 残機関連
 	void LoseLife() { lives = (lives > 0 ? lives - 1 : 0); }
 	void GainLife() { lives++; }
-	int GetLives() const  { return lives; }
+	int GetLives() const { return lives; }
 	bool HasLives() const { return lives > 0; }
 
 	// 暗転中などで操作不能＆無敵にするフラグ
@@ -120,28 +121,28 @@ public:
 	const int Image = -1, Sound = -1;
 
 	// 満腹度関連
-	int UI_Bar_Green   = Image;		//緑バーの画像
-	int UI_Bar_Yellow  = Image;		//黄バーの画像
-	int UI_Bar_Red     = Image;		//赤バーの画像
-	int UI_Bar_Case    = Image;		//バーの枠の画像
+	int UI_Bar_Green = Image;		//緑バーの画像
+	int UI_Bar_Yellow = Image;		//黄バーの画像
+	int UI_Bar_Red = Image;		//赤バーの画像
+	int UI_Bar_Case = Image;		//バーの枠の画像
 
 	//体系状態UI
-	int UI_Thin         = Image;	//Thinの画像
+	int UI_Thin = Image;	//Thinの画像
 	int UI_SlightlyThin = Image;	//SlightlyThin画像
-	int UI_Normal       = Image;	//Normalの画像
-	int UI_SlightlyFat  = Image;	//SlightlyFatの画像
-	int UI_Fat1         = Image;	//Fat1の画像
-	int UI_Fat2         = Image;	//Fat2の画像
-	int UI_Fat3         = Image;	//Fat3の画像
-	int UI_Fat4         = Image;	//Fat4の画像
+	int UI_Normal = Image;	//Normalの画像
+	int UI_SlightlyFat = Image;	//SlightlyFatの画像
+	int UI_Fat1 = Image;	//Fat1の画像
+	int UI_Fat2 = Image;	//Fat2の画像
+	int UI_Fat3 = Image;	//Fat3の画像
+	int UI_Fat4 = Image;	//Fat4の画像
 
 	//警告用
-	int UI_WARNING_BD   = Image;
-	int UI_WARNING      = Image;
+	int UI_WARNING_BD = Image;
+	int UI_WARNING = Image;
 
 private:
 	void ShrinkByDistance(std::vector<Block>& blocks);   // 移動に応じて瘦せる
-	
+
 	// サイズ変更後の壁埋まり対応
 	void ResolveStuckAfterResize(const std::vector<Block>& blocks);
 	void FixStuckInBlock(const std::vector<Block>& blocks);
@@ -155,23 +156,61 @@ private:
 	float velocityY;
 
 	//アニメーション関連
-	int idleImage    = Image;  // 待機
-	int jumpImage    = Image;  // ジャンプ
-	int moveImages[3];         // 移動
-	int currentFrame = 0;      // 現在のフレーム
-	float animTimer  = 0.0f;   // アニメーション用タイマー
-	float animSpeed  = 0.15f;  // フレーム切り替え間隔
+	//SlightlyThinはやや瘦せ体系、ThinFはやや太り体系、Fat12は肥満1度2度、Fat34は肥満3度4度
 
-	enum class AnimState { Idle, Move, Jump }; // アイドル、移動、ジャンプ
-	AnimState animState = AnimState::Idle;     // 基本状態
+	int ThinTidleImage = Image;  // 待機
+	int ThinTjumpImage = Image;  // ジャンプ
+	int ThinTmoveImages[3];   // 瘦せ体系の移動
+
+	int SlightlyThinidleImage = Image;  // 待機
+	int SlightlyThinjumpImage = Image;  // ジャンプ
+	int SlightlyThinmoveImages[3];   // やや瘦せ体系の移動
+
+	int NormalidleImage = Image;  // 待機
+	int NormaljumpImage = Image;  // ジャンプ
+	int NormalmoveImages[3];   // 通常体系の移動
+
+	int ThinFidleImage = Image;  // 待機
+	int ThinFjumpImage = Image;  // ジャンプ
+	int ThinFmoveImages[3];   // やや太り体系の移動
+
+	int Fat12idleImage = Image;  // 待機
+	int Fat12jumpImage = Image;  // ジャンプ
+	int Fat12moveImages[3];   // 肥満1度2度体系の移動
+
+	int Fat34idleImage = Image;  // 待機
+	int Fat34jumpImage = Image;  // ジャンプ
+	int Fat34moveImages[3];   // 肥満3度4度体系の移動
+
+
+	int currentFrame = 0;      // 現在のフレーム
+	float animTimer = 0.0f;   // アニメーション用タイマー
+	float animSpeed = 0.15f;  // フレーム切り替え間隔
+
+
+	enum class AnimState_Thin { Idle, Move, Jump }; // 体系ごとのアニメーション状態
+	enum class AnimState_SlightlyThin { Idle, Move, Jump }; // 体系ごとのアニメーション状態
+	enum class AnimState_Normal { Idle, Move, Jump }; // アイドル、移動、ジャンプ
+	enum class AnimState_SlightlyFat { Idle, Move, Jump }; // 体系ごとのアニメーション状態
+	enum class AnimState_Fat12 { Idle, Move, Jump }; // 体系ごとのアニメーション状態
+	enum class AnimState_Fat34 { Idle, Move, Jump }; // 体系ごとのアニメーション状態
+
+
+	AnimState_Thin animState_thin = AnimState_Thin::Idle;						   // 体系状態
+	AnimState_SlightlyThin animState_slightlyThin = AnimState_SlightlyThin::Idle;  // 体系状態
+	AnimState_Normal animState_normal = AnimState_Normal::Idle;					   // 基本状態
+	AnimState_SlightlyFat animState_slightlyFat = AnimState_SlightlyFat::Idle;     // 体系状態
+	AnimState_Fat12 animState_fat12 = AnimState_Fat12::Idle;                       // 体系状態
+	AnimState_Fat34 animState_fat34 = AnimState_Fat34::Idle;                       // 体系状態
+
 
 	float satiety = 1.0f;		// 満腹度(1.0 = 最大, 0.0 = 空腹)
 
 	const int maxOffset = 32;	//32ドット
 
-	int soundvolume_  = 512;	//音量
+	int soundvolume_ = 512;	//音量
 	int Warning_Sound = Sound;	//警告音
-	int Jump_Sound    = Sound;	//ジャンプ音
+	int Jump_Sound = Sound;	//ジャンプ音
 
 	// 瘦せ警告表示用
 	float thinWarningTimer = 0.0f;    // 点滅用の累積時間
@@ -183,11 +222,11 @@ private:
 	float jumpCooldownTimer = 0.0f;   // ジャンプクールタイムのカウント（フレーム単位）
 
 	bool isFacingRight = true;        // プレイヤーが右を向いているか
-	
+
 	float startFreezeTimer = PlayerConfig::START_FREEZE_SEC;
 	int fixedStartY = 0;              // 初期y座標を覚えておく
-	
-	float walkedDistance   = PlayerConfig::DISTANCE_TO_SHRINK;    // 移動距離の統計
+
+	float walkedDistance = PlayerConfig::DISTANCE_TO_SHRINK;    // 移動距離の統計
 	const int* blockImages = nullptr;
 
 	// 無敵＆操作フラグ
