@@ -8,6 +8,7 @@ namespace GlobalConfig {
     //カラー(32bit)
     const int BIT_COLOR = 32;
 
+	const int FONT_SIZE = 40; // フォントサイズ
     // グローバルなタイルサイズ（マップ系）
     const int TILE_SIZE = 40;
 
