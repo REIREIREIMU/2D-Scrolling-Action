@@ -31,6 +31,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ReadyScene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SPScene.cpp" />
     <ClCompile Include="TitleScene.cpp" />
   </ItemGroup>
@@ -48,6 +49,8 @@
     <ClInclude Include="ReadyScene.h" />
     <ClInclude Include="SceneBase.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="SpriteText.h" />
     <ClInclude Include="SPScene.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="Types.h" />
