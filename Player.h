@@ -4,7 +4,6 @@
 #include <vector>
 #include <algorithm>
 #include <DxLib.h>
-#include "Sprite.h"
 
 // プレイヤー設定値
 namespace PlayerConfig {
@@ -156,53 +155,15 @@ private:
 	float velocityY;
 
 	//アニメーション関連
-	//SlightlyThinはやや瘦せ体系、ThinFはやや太り体系、Fat12は肥満1度2度、Fat34は肥満3度4度
-
-	int ThinTidleImage = Image;  // 待機
-	int ThinTjumpImage = Image;  // ジャンプ
-	int ThinTmoveImages[3];   // 瘦せ体系の移動
-	
-	int SlightlyThinidleImage = Image;  // 待機
-	int SlightlyThinjumpImage = Image;  // ジャンプ
-	int SlightlyThinmoveImages[3];   // やや瘦せ体系の移動
-
-	int NormalidleImage    = Image;  // 待機
-	int NormaljumpImage    = Image;  // ジャンプ
-	int NormalmoveImages[3];   // 通常体系の移動
-
-	int ThinFidleImage = Image;  // 待機
-	int ThinFjumpImage = Image;  // ジャンプ
-	int ThinFmoveImages[3];   // やや太り体系の移動
-	
-	int Fat12idleImage = Image;  // 待機
-	int Fat12jumpImage = Image;  // ジャンプ
-	int Fat12moveImages[3];   // 肥満1度2度体系の移動
-
-	int Fat34idleImage = Image;  // 待機
-	int Fat34jumpImage = Image;  // ジャンプ
-	int Fat34moveImages[3];   // 肥満3度4度体系の移動
-	
-	
+	int idleImage    = Image;  // 待機
+	int jumpImage    = Image;  // ジャンプ
+	int moveImages[3];         // 移動
 	int currentFrame = 0;      // 現在のフレーム
 	float animTimer  = 0.0f;   // アニメーション用タイマー
 	float animSpeed  = 0.15f;  // フレーム切り替え間隔
 
-
-	enum class AnimState_Thin { Idle, Move, Jump }; // 体系ごとのアニメーション状態
-	enum class AnimState_SlightlyThin { Idle, Move, Jump }; // 体系ごとのアニメーション状態
-	enum class AnimState_Normal { Idle, Move, Jump }; // アイドル、移動、ジャンプ
-	enum class AnimState_SlightlyFat { Idle, Move, Jump }; // 体系ごとのアニメーション状態
-	enum class AnimState_Fat12 { Idle, Move, Jump }; // 体系ごとのアニメーション状態
-	enum class AnimState_Fat34 { Idle, Move, Jump }; // 体系ごとのアニメーション状態
-	
-	
-	AnimState_Thin animState_thin = AnimState_Thin::Idle;						   // 体系状態
-	AnimState_SlightlyThin animState_slightlyThin = AnimState_SlightlyThin::Idle;  // 体系状態
-	AnimState_Normal animState_normal = AnimState_Normal::Idle;					   // 基本状態
-	AnimState_SlightlyFat animState_slightlyFat = AnimState_SlightlyFat::Idle;     // 体系状態
-	AnimState_Fat12 animState_fat12 = AnimState_Fat12::Idle;                       // 体系状態
-	AnimState_Fat34 animState_fat34 = AnimState_Fat34::Idle;                       // 体系状態
-
+	enum class AnimState { Idle, Move, Jump }; // アイドル、移動、ジャンプ
+	AnimState animState = AnimState::Idle;     // 基本状態
 
 	float satiety = 1.0f;		// 満腹度(1.0 = 最大, 0.0 = 空腹)
 

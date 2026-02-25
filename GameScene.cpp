@@ -8,7 +8,6 @@
 #include "MapData.h"
 #include "Player.h"
 #include "SPScene.h"
-#include "Spritetext.h"
 
 // アイテム種類をランダムで返す
 int GetRandomItemType() { return GetRand(4); }  // 0〜4 のアイテム番号
@@ -763,12 +762,12 @@ void GameScene::Draw()
 
 
 	SetFontSize(GameConfig::UI_FONT_SCORE);
-	BmpDrawFormatString( x_a, y_a, ColorConfig::White, " %06d", score);
+	DrawFormatString( x_a, y_a, ColorConfig::White, " %06d", score);
 	
 	
 	
 	
-	BmpDrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
+	DrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
 	
 	SetFontSize(GameConfig::FONT_SIZE);
 	DrawGraph(0, 0, UI_Score, TRUE);		// スコア表示
@@ -776,7 +775,7 @@ void GameScene::Draw()
 	DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
 
 	SetFontSize(GameConfig::UI_FONT_TIMER);
-	BmpDrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
+	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
 }
 
 bool GameScene::IsEnd() { return endFlag; }

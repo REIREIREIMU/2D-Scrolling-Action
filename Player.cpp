@@ -77,18 +77,18 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 	bool decidePressed = Input::IsDecide();
 
 	// アニメーション状態切り替え
-
-	if (!onGround && GetFatState() == FatState::Thin) {
-		animState_thin = AnimState_Thin::Jump;
+	if (!onGround) {
+		animState = AnimState::Jump;
 	}
 	else if (moveX != 0) {
-		animState_thin = AnimState_Thin::Move;
+		animState = AnimState::Move;
 	}
 	else {
-		animState_thin = AnimState_Thin::Idle;
+		animState = AnimState::Idle;
 	}
+
 	// 移動中ならアニメーション進行
-	if (animState_thin == AnimState_Thin::Move) {
+	if (animState == AnimState::Move) {
 		animTimer += (float)deltaTime;
 		if (animTimer > animSpeed) {
 			currentFrame = (currentFrame + 1) % 3;
@@ -99,132 +99,6 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 		currentFrame = 0;
 		animTimer = 0.0f;
 	}
-
-
-
-	if (!onGround && GetFatState() ==FatState::SlightlyThin ) {
-		animState_slightlyThin = AnimState_SlightlyThin::Jump;
-	}
-	else if (moveX != 0) {
-		animState_slightlyThin = AnimState_SlightlyThin::Move;
-	}
-	else {
-		animState_slightlyThin = AnimState_SlightlyThin::Idle;
-	}
-	// 移動中ならアニメーション進行
-	if (animState_slightlyThin == AnimState_SlightlyThin::Move) {
-		animTimer += (float)deltaTime;
-		if (animTimer > animSpeed) {
-			currentFrame = (currentFrame + 1) % 3;
-			animTimer = 0.0f;
-		}
-	}
-	else {
-		currentFrame = 0;
-		animTimer = 0.0f;
-	}
-
-
-
-
-	if (!onGround && GetFatState() ==FatState::Normal ) {
-		animState_normal = AnimState_Normal::Jump;
-	}
-	else if (moveX != 0) {
-		animState_normal = AnimState_Normal::Move;
-	}
-	else {
-		animState_normal = AnimState_Normal::Idle;
-	}
-	// 移動中ならアニメーション進行
-	if (animState_normal == AnimState_Normal::Move) {
-		animTimer += (float)deltaTime;
-		if (animTimer > animSpeed) {
-			currentFrame = (currentFrame + 1) % 3;
-			animTimer = 0.0f;
-		}
-	}
-	else {
-		currentFrame = 0;
-		animTimer = 0.0f;
-	}
-
-
-
-	if (!onGround && GetFatState() ==FatState::SlightlyFat ) {
-		animState_slightlyFat = AnimState_SlightlyFat::Jump;
-	}
-	else if (moveX != 0) {
-		animState_slightlyFat = AnimState_SlightlyFat::Move;
-	}
-	else {
-		animState_slightlyFat = AnimState_SlightlyFat::Idle;
-	}
-	// 移動中ならアニメーション進行
-	if (animState_slightlyFat == AnimState_SlightlyFat::Move) {
-		animTimer += (float)deltaTime;
-		if (animTimer > animSpeed) {
-			currentFrame = (currentFrame + 1) % 3;
-			animTimer = 0.0f;
-		}
-	}
-	else {
-		currentFrame = 0;
-		animTimer = 0.0f;
-	}
-
-
-
-	if (!onGround && GetFatState() ==FatState::Fat1 || !onGround && GetFatState() == FatState::Fat2) {
-		animState_fat12 = AnimState_Fat12::Jump;
-	}
-	else if (moveX != 0) {
-		animState_fat12 = AnimState_Fat12::Move;
-	}
-	else {
-		animState_fat12 = AnimState_Fat12::Idle;
-	}
-	// 移動中ならアニメーション進行
-	if (animState_fat12 == AnimState_Fat12::Move) {
-		animTimer += (float)deltaTime;
-		if (animTimer > animSpeed) {
-			currentFrame = (currentFrame + 1) % 3;
-			animTimer = 0.0f;
-		}
-	}
-	else {
-		currentFrame = 0;
-		animTimer = 0.0f;
-	}
-
-
-	if (!onGround && GetFatState() == FatState::Fat3 || !onGround && GetFatState() == FatState::Fat4) {
-		animState_fat34 = AnimState_Fat34::Jump;
-	}
-	else if (moveX != 0) {
-		animState_fat34 = AnimState_Fat34::Move;
-	}
-	else {
-		animState_fat34 = AnimState_Fat34::Idle;
-	}
-	// 移動中ならアニメーション進行
-	if (animState_fat34 == AnimState_Fat34::Move) {
-		animTimer += (float)deltaTime;
-		if (animTimer > animSpeed) {
-			currentFrame = (currentFrame + 1) % 3;
-			animTimer = 0.0f;
-		}
-	}
-	else {
-		currentFrame = 0;
-		animTimer = 0.0f;
-	}
-
-
-
-
-
-
 
 	// 開始直後の固定処理
 	bool duringFreeze = (startFreezeTimer > 0.0f);
@@ -432,61 +306,20 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 
 void Player::Draw(int scrollX) const {
 
-
 	if (isDead) return;// 死亡時は描画しない
-
+	
 	int handle = -1;
-
-	// ★ 現在の体型を1回だけ取得
-	FatState state = GetFatState();
-
-	// ★ 現在体型の switch「だけ」実行する
-	if (state == FatState::Thin) {
-		switch (animState_thin) {
-		case AnimState_Thin::Idle: handle = ThinTidleImage; break;
-		case AnimState_Thin::Move: handle = ThinTmoveImages[currentFrame]; break;
-		case AnimState_Thin::Jump: handle = ThinTjumpImage; break;
-		}
+	switch (animState) {
+	case AnimState::Idle:
+		handle = idleImage;
+		break;
+	case AnimState::Move:
+		handle = moveImages[currentFrame];
+		break;
+	case AnimState::Jump:
+		handle = jumpImage;
+		break;
 	}
-	else if (state == FatState::SlightlyThin) {
-		switch (animState_slightlyThin) {
-		case AnimState_SlightlyThin::Idle: handle = SlightlyThinidleImage; break;
-		case AnimState_SlightlyThin::Move: handle = SlightlyThinmoveImages[currentFrame]; break;
-		case AnimState_SlightlyThin::Jump: handle = SlightlyThinjumpImage; break;
-		}
-	}
-	else if (state == FatState::Normal) {
-		switch (animState_normal) {
-		case AnimState_Normal::Idle: handle = NormalidleImage; break;
-		case AnimState_Normal::Move: handle = NormalmoveImages[currentFrame]; break;
-		case AnimState_Normal::Jump: handle = NormaljumpImage; break;
-		}
-	}
-	else if (state == FatState::SlightlyFat) {
-		switch (animState_slightlyFat) {
-		case AnimState_SlightlyFat::Idle: handle = ThinFidleImage; break;
-		case AnimState_SlightlyFat::Move: handle = ThinFmoveImages[currentFrame]; break;
-		case AnimState_SlightlyFat::Jump: handle = ThinFjumpImage; break; // ★Idle→Jumpに修正
-		}
-	}
-	else if (state == FatState::Fat1 || state == FatState::Fat2) {
-		switch (animState_fat12) {
-		case AnimState_Fat12::Idle: handle = Fat12idleImage; break;
-		case AnimState_Fat12::Move: handle = Fat12moveImages[currentFrame]; break;
-		case AnimState_Fat12::Jump: handle = Fat12jumpImage; break;
-		}
-	}
-	else { // Fat3 or Fat4
-		switch (animState_fat34) {
-		case AnimState_Fat34::Idle: handle = Fat34idleImage; break;
-		case AnimState_Fat34::Move: handle = Fat34moveImages[currentFrame]; break;
-		case AnimState_Fat34::Jump: handle = Fat34jumpImage; break;
-		}
-	}
-
-	// 念のためのフォールバック
-	if (handle < 0) handle = NormalidleImage;
-
 
 	// プレイヤーの当たり判定矩形を取得
 	Rect rect = GetRect();
@@ -740,50 +573,12 @@ void Player::SetFatState(FatState state, std::vector<Block>& blocks)
 	SetWidthAndFix(newWidth, blocks);
 }
 
-void Player::LoadImages() 
-{
-	ThinTidleImage = LoadGraph("image/player_idle_thinT.png");
-	ThinTjumpImage = LoadGraph("image/player_jump_thinT.png");
-	ThinTmoveImages[0] = LoadGraph("image/player_move1_thinT.png");
-	ThinTmoveImages[1] = LoadGraph("image/player_move2_thinT.png");
-	ThinTmoveImages[2] = LoadGraph("image/player_move3_thinT.png");
-	
-	SlightlyThinidleImage = LoadGraph("image/player_idle_slightT.png");
-	SlightlyThinjumpImage = LoadGraph("image/player_jump_slightT.png");
-	SlightlyThinmoveImages[0] = LoadGraph("image/player_move1_slightT.png");
-	SlightlyThinmoveImages[1] = LoadGraph("image/player_move2_slightT.png");
-	SlightlyThinmoveImages[2] = LoadGraph("image/player_move3_slightT.png");
-	
-	
-	NormalidleImage     = LoadGraph("image/player_idle_normal.png");
-	NormaljumpImage     = LoadGraph("image/player_jump_normal.png");
-	NormalmoveImages[0] = LoadGraph("image/player_move1_normal.png");
-	NormalmoveImages[1] = LoadGraph("image/player_move2_normal.png");
-	NormalmoveImages[2] = LoadGraph("image/player_move3_normal.png");
-
-	ThinFidleImage = LoadGraph("image/player_idle_slightF.png");
-	ThinFjumpImage = LoadGraph("image/player_jump_slightF.png");
-	ThinFmoveImages[0] = LoadGraph("image/player_move1_slightF.png");
-	ThinFmoveImages[1] = LoadGraph("image/player_move2_slightF.png");
-	ThinFmoveImages[2] = LoadGraph("image/player_move3_slightF.png");
-
-	Fat12idleImage = LoadGraph("image/player_idle_fat12.png");
-	Fat12jumpImage = LoadGraph("image/player_jump_fat12.png");
-	Fat12moveImages[0] = LoadGraph("image/player_move1_fat12.png");
-	Fat12moveImages[1] = LoadGraph("image/player_move2_fat12.png");
-	Fat12moveImages[2] = LoadGraph("image/player_move3_fat12.png");
-
-	Fat34idleImage = LoadGraph("image/player_idle_fat34.png");
-	Fat34jumpImage = LoadGraph("image/player_jump_fat34.png");
-	Fat34moveImages[0] = LoadGraph("image/player_move1_fat34.png");
-	Fat34moveImages[1] = LoadGraph("image/player_move2_fat34.png");
-	Fat34moveImages[2] = LoadGraph("image/player_move3_fat34.png");
-
-
-
-
-
-
+void Player::LoadImages() {
+	idleImage     = LoadGraph("image/player_idle.png");
+	jumpImage     = LoadGraph("image/player_jump.png");
+	moveImages[0] = LoadGraph("image/player_move1.png");
+	moveImages[1] = LoadGraph("image/player_move2.png");
+	moveImages[2] = LoadGraph("image/player_move3.png");
 }
 
 //動いているとき

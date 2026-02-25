@@ -5,7 +5,6 @@
 #include "ClearScene.h"
 #include "ReadyScene.h"
 #include "SPScene.h"
-#include "Sprite.h"
 
 // static 変数の実体定義
 int SceneManager::resultScore = 0;
@@ -21,24 +20,6 @@ SceneManager::SceneManager() {
 	PlayerLives  = SceneFlowConfig::START_LIVES;    // 初期残機数
 	CurrentStage = 1;								// 最初のステージ設定
 	
-	
-
-	// ★画像の実際の並びに合わせて設定してください
-	std::vector<std::string> rows;
-	rows.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZ");   // 行1（大文字 前半）
-	rows.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZ");   // 行2（大文字 後半 など画像に合わせる）
-	rows.push_back("abcdefghijklmnopqrstuvwxyz");   // 行3
-	rows.push_back("abcdefghijklmnopqrstuvwxyz");   // 行4
-	rows.push_back("1234567890?!");                // 行5
-
-
-	const int glyphW = 64;        // 画像内の1文字の幅（px）
-	const int glyphH = 64;        // 画像内の1文字の高さ（px）
-	const int cols = 26;        // 1行の列数（A-Zなら26）
-
-	bool ok = SpriteFont::Instance().Load("image/bitmap_font.png",
-		glyphW, glyphH, cols, rows);
-
 	ChangeScene(0);		// 最初はタイトル画面
 }
 
