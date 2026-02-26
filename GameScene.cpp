@@ -231,6 +231,8 @@ void GameScene::StageSet(const Rect &position)
 	if (stageNo == 1) stageMap = "map/mapData1.csv";
 	//else if (stageNo == 2) stageMap = "map/mapData2.csv";
 	else if (stageNo == 2) stageMap = "map/mapData2.csv";
+	else if (stageNo==3) stageMap = "map/mapData3.csv";
+	else if (stageNo == 4) stageMap = "map/mapData4.csv";
 	if (stageNo == 5)
 	{
 		stageMap = "map/mapDataSP.csv";//SPステージのマップ
