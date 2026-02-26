@@ -8,7 +8,7 @@
 // 表示・進行設定（SP 専用）
 namespace SPConfig {
     constexpr int WAIT_FRAMES = 60;   // 入力受付開始まで（約1秒）
-    constexpr int SHOW_DURATION_FRAMES = 600;  // 自動遷移: 約10秒（60fps想定）
+    constexpr int SHOW_DURATION_FRAMES = 840;  // 自動遷移: 約10秒（60fps想定）
 }
 
 class SPScene : public SceneBase
@@ -22,8 +22,8 @@ private:
     bool endFlag = false;
     bool quitFlag = false;
     bool controllerConnected = false;
-    int  waitTimer_ = 0;
-
+	int  waitTimer_ = 0;// 入力受付開始までの待機フレームカウンタ
+	//int SPtimer_ = 0;// SPステージ限定のフレームカウンタ（必要なら）
     // 表示資源
     int ClearImage = -1; // 背景画像（キーボード）
     int Clear_XboxImage = -1; // 背景画像（コントローラー）

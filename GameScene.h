@@ -40,7 +40,7 @@ namespace GameConfig {
 class GameScene : public SceneBase {
 public:
 	// ステージ関連
-	explicit GameScene(int stage,bool start) : stageNo(stage),isMap2Clear(start) {}
+	explicit GameScene(int stage,bool start) : stageNo(stage),isMap5Clear(start) {}
 	void Init() override;
 	void StageSet(const Rect &position);
 	void Update();
@@ -54,7 +54,16 @@ public:
 	
 	void SetScore(int sc, int SPsc) { score = sc, SPscore = SPsc; }
 
-	void SetBonusClear(bool clear) { isMap2Clear = clear; }
+	void SetBonusClear(bool clear) { isMap5Clear = clear; }
+
+
+
+	// SceneManager 退避用 Getter（残り時間 秒）
+	double GetTimeLimitSec() const { return timeLimit; }
+
+	// SceneManager からの復元を受け取る（Init 前でも可）
+	void SetCarryOverTime(int sec) { carryOverTimePending_ = sec; }
+
 
 	// --- SP用の集計と差分検出 ---
 	int  SPscore = 0;   // 通常scoreとは独立のSP専用累計
@@ -114,6 +123,15 @@ private:
 	int score		 = 0;							// スコア
 	double timeLimit = GameConfig::TIME_LIMIT_SEC;	// 制限時間（秒）
 
+
+	int spTotalFrames_ = 60 * 10;  // SPは 10 秒 → 600 フレーム
+	int spRemainFrames_ = 0;        // 0 のときは未稼働
+
+
+	int timeLimitTotalFrames_ = 60 * 300;  // 例：合計 300 秒なら 300*60 ※お好みで
+	int timeLimitRemainFrames_ = timeLimitTotalFrames_;
+
+
 	// 文字の表示座標(X)
 	const int x_a = 120, x_b = 560, x_c = 1180;
 
@@ -153,14 +171,27 @@ private:
 	float elapsedSec = 0.0f;
 
 	// ステージ2の10秒効果用
-	float stage2TimeSec = -1.0f; // -1: 無効（未入場/効果なし）
-	static constexpr float STAGE2_SteatTime = 10.0f; // 10秒固定
+	float stage5TimeSec = -1.0f; // -1: 無効（未入場/効果なし）
+	static constexpr float STAGE5_SteatTime = 14.0f; // 10秒固定
 
 	//敵と当たった時の無敵時間用
 	float lastHitTime=0;
 	float damageCooldown = 1.0f;
 
-	bool isMap2Start = false;
-	bool isMap2Clear=false;
+	
+
+
+
+	// --- SP 区間（stageNo==2）用の簡易タイマー（見た目用）---
+	bool  spTimerActive_ = false;
+	float spTimeRemain_ = 0.0f;     // 10.0f を想定（STAGE2_SteatTime）
+	bool isMap5Start = false;
+	bool isMap5Clear = false;
+
+
+	// 復元待ちの通常タイマー（SceneManager → GameScene）
+	int carryOverTimePending_ = -1;
+
+
 
 };
