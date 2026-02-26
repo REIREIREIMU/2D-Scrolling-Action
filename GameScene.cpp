@@ -139,7 +139,7 @@ void GameScene::Init() {
 	PlaySoundMem(Main_Bgm, DX_PLAYTYPE_LOOP);
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
-	if (!isMap2Clear)
+	if (!isMap5Clear)
 	{
 		StageSet(map.playerStart);
 	}
@@ -211,6 +211,12 @@ void GameScene::Init() {
 	
 	
 
+	// --- 通常タイマー復元（SceneManager → carryOver がある時だけ上書き）---
+	if (carryOverTimePending_ >= 0) 
+	{
+		timeLimit = (double)carryOverTimePending_;
+		carryOverTimePending_ = -1;
+	}
 
 
 }
@@ -221,8 +227,12 @@ void GameScene::StageSet(const Rect &position)
 	//文字列からCSV形式に変更
 	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
 	if (stageNo == 1) stageMap = "map/mapData1.csv";
+	//else if (stageNo == 2) stageMap = "map/mapData2.csv";
 	else if (stageNo == 2) stageMap = "map/mapData2.csv";
-	else if (stageNo == 3) stageMap = "map/mapData3.csv";
+	{
+		score = 0;
+	}
+	if (stageNo == 5) stageMap = "map/mapDataSP.csv";//SPステージのマップ
 
 
 	//対応したマップ読み込み
@@ -273,11 +283,11 @@ void GameScene::Update()
 
 	//Update(deltaTimeForUpdate); // 内部で渡す
 	// --- ステージ2固定（10秒間）を監視し、期間内は毎フレーム 体型3 を保証 ---
-	if (stageNo == 2 && stage2TimeSec >= 0.0f)
+	if (stageNo == 5 && stage5TimeSec >= 0.0f)
 	{
-		const float t = elapsedSec - stage2TimeSec;
+		const float t = elapsedSec - stage5TimeSec;
 
-		if (t >= 0.0f && t < STAGE2_SteatTime)
+		if (t >= 0.0f && t < STAGE5_SteatTime)
 		{
 
 
@@ -289,11 +299,14 @@ void GameScene::Update()
 
 
 		}
-		else if (t >= STAGE2_SteatTime)
+		else if (t >= STAGE5_SteatTime)
 		{
 			// 10秒経過 → 固定解除
 
-			stage2TimeSec = -1.0f;
+			// fallTriggers 命中処理内の末尾（既存 return; の直前）に追加
+			spTimerActive_ = true;// SPタイマーを有効化（見た目用）
+
+			stage5TimeSec = -1.0f;
 
 			// ★ 次回のために差分基準化フラグを落とす
 			spCountActive = false;
@@ -317,7 +330,7 @@ void GameScene::Update()
 	{
 		if (player.GetRect().Intersects(trigger))
 		{
-			stageNo = 2;//落下先のマップ
+			stageNo = 5;//落下先のマップ
 			StageSet(map.playerStart);//マップをロードする
 
 
@@ -325,8 +338,13 @@ void GameScene::Update()
 
 
 			// ここから10秒間固定カウント開始
-			stage2TimeSec = elapsedSec;
-			isMap2Start = true;
+			stage5TimeSec = elapsedSec;
+
+			// --- ★ SPタイマー開始（見た目用） ---
+			spTimerActive_ = true;
+			spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
+
+			isMap5Start = true;
 			return;
 		}
 	}
@@ -340,10 +358,10 @@ void GameScene::Update()
 		
 		if (player.GetRect().Intersects(trigger))
 		{
-			isMap2Clear = true;
+			isMap5Clear = true;
 			SceneManager::SetSPScore(SPscore);
 			SceneManager::SetItemCount(SPitemGetCount);
-			SceneManager::SetBonusClear(isMap2Clear);
+			SceneManager::SetBonusClear(isMap5Clear);
 			StopSoundMem(Main_Bgm);
 			endFlag = true;
 			nextSceneID = (int)SceneState::SP_Scene;
@@ -351,14 +369,14 @@ void GameScene::Update()
 		
 	}
 
-	if (elapsedSec-stage2TimeSec>=10)
+	if (elapsedSec-stage5TimeSec>=10)
 	{
-		if (isMap2Start!=false&&isMap2Clear != true)
+		if (isMap5Start!=false&&isMap5Clear != true)
 		{
-			isMap2Clear = true;
+			isMap5Clear = true;
 			SceneManager::SetSPScore(SPscore);
 			SceneManager::SetItemCount(SPitemGetCount);
-			SceneManager::SetBonusClear(isMap2Clear);
+			SceneManager::SetBonusClear(isMap5Clear);
 			StopSoundMem(Main_Bgm);
 			endFlag = true;
 			nextSceneID = (int)SceneState::SP_Scene;
@@ -386,6 +404,31 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		player.isDead = true;
 		timeLimit = 0;
 	}
+	else {
+		// ★ SP中：通常タイマーは停止、SP残りだけを減算
+		if (spTimerActive_) {
+			spTimeRemain_ -= (float)deltaTime;
+			if (spTimeRemain_ < 0.0f) spTimeRemain_ = 0.0f;
+		}
+	}
+
+
+		// --- ★ 通常タイマー停止／SPタイマー動作 ---
+
+	if (!isMap5Start) { // ← SPでない通常プレイ中
+		if (timeLimitRemainFrames_ > 0) {
+			--timeLimitRemainFrames_;
+		}
+		if (timeLimitRemainFrames_ <= 0) {
+			player.isDead = true; // 0 になったら死亡
+		}
+	}
+	else
+	{
+
+
+	}
+
 
 	// プレイヤーの更新
 	player.Update(blocks, deltaTime);
@@ -533,7 +576,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	// アイテム取得処理
 	for (size_t i = 0; i < items.size(); ++i) {
 		if (!itemCollected[i] && CheckCollision(playerRect, items[i].rect)) {
-			if (!isMap2Start)
+			if (!isMap5Start)
 			{
 				itemCollected[i] = true;
 				player.Grow(blocks);
@@ -714,7 +757,7 @@ void GameScene::Draw()
 {
 
 	// 背景描画
-	if (backgroundImage >= 0&&!isMap2Start) 
+	if (backgroundImage >= 0&&!isMap5Start) 
 	{
 		DrawBox(0, 0, GlobalConfig::SCREEN_WIDTH, GlobalConfig::SCREEN_HEIGHT, ColorConfig::White, TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, GlobalConfig::ALPHA_CONSTANT);
@@ -730,7 +773,7 @@ void GameScene::Draw()
 
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
-	else if(isMap2Start)
+	else if(isMap5Start)
 	{
 		DrawGraph(0, 0, bonusBackGroundImg, TRUE);
 	}
@@ -813,8 +856,18 @@ void GameScene::Draw()
 	DrawGraph(0, 0, UI_Player_Lives, TRUE);	// 残機表示
 	DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
 
+
 	SetFontSize(GameConfig::UI_FONT_TIMER);
-	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
+	if (!isMap5Start) {
+		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
+	}
+	else {
+		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+
 }
 
 bool GameScene::IsEnd() { return endFlag; }

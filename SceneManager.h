@@ -28,6 +28,7 @@ private:
 	static int itemCount;//ボーナスステージのアイテム取得カウント
 	static bool isBonusClear;//ボーナスステージから戻った時の座標を決めるために使うk
 	//static int itemBonus;	  // アイテムボーナス
+	int carryOverTimeSec = -1;// タイムボーナス計算用の残り時間（秒単位）
 
 	int	 sceneID      = -1;
 	int  CurrentStage =  1;   // 現在のステージ番号を追加 (1,2,3など)
@@ -41,6 +42,11 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 	SceneBase* GetCurrentScene();
+
+	// 残り時間の退避＆取得＆クリア
+	void SetCarryOverTimeSec(int sec) { carryOverTimeSec = sec; }
+	int  GetCarryOverTimeSec() const { return carryOverTimeSec; }
+	void ClearCarryOverTime() { carryOverTimeSec = -1; }
 
 
 

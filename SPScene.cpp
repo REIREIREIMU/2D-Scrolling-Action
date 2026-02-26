@@ -1,6 +1,7 @@
 #include "SPScene.h"
 #include "Input.h"
 #include "Config.h"
+#include <algorithm> 
 
 // SP はステージ2のみで獲得したスコア（SPscore_）を表示してから画面遷移する
 void SPScene::Init()
@@ -19,6 +20,10 @@ void SPScene::Init()
 
 void SPScene::Update()
 {
+
+    // 経過フレームを進める
+    waitTimer_++;
+
     // 入力受付までの待機
     if (waitTimer_ > SPConfig::WAIT_FRAMES && Input::IsDecide()) {
         endFlag = true;
@@ -31,13 +36,15 @@ void SPScene::Update()
 
     // 経過フレームを進める
     waitTimer_++;
-
+	//SPtimer_++;
     // コントローラー接続確認
     controllerConnected = (GetJoypadNum() > 0);
 }
 
 void SPScene::Draw()
 {
+
+
     // 背景
     if (controllerConnected && Clear_XboxImage >= 0) {
         DrawGraph(0, 0, Clear_XboxImage, TRUE);
@@ -60,8 +67,23 @@ void SPScene::Draw()
 
     // 操作ガイダンス（背景にテキストがある場合は省略してもOK）
     // 1秒経過後は押下でスキップできることを示す
+
+
+
+
+    const int totalFrames = SPConfig::SHOW_DURATION_FRAMES;   // 600
+    const int remainingFrames = totalFrames - waitTimer_;
+    const int clampedFrames = (remainingFrames > 0) ? remainingFrames : 0;
+
+
+    const int leftS = (clampedFrames + 59) / 60;
+    DrawFormatString(x_a, y_d, ColorConfig::Black, "TIME: %d", leftS);
+
+
+
+
     if (waitTimer_ > SPConfig::WAIT_FRAMES) {
-        DrawFormatString(x_a, y_e, ColorConfig::Black, "Press ENTER / A to continue");
+       // DrawFormatString(x_a, y_e, ColorConfig::Black, "Press ENTER / A to continue");
     }
 }
 

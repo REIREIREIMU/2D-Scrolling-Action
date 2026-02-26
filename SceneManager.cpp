@@ -83,6 +83,14 @@ void SceneManager::ChangeScene(int id) {
 		auto* game = new GameScene(CurrentStage,isBonusClear); // 引数でステージを指定
 		game->SetLives(PlayerLives);			  // 残機を渡す
 		game->SetScore(resultScore,SPBonus);
+
+
+		// --- ここで復元（退避があるときのみ）---
+		if (GetCarryOverTimeSec() >= 0)
+		{
+			game->SetCarryOverTime(GetCarryOverTimeSec());  // 後述 2) で実装
+			ClearCarryOverTime();
+		}
 		currentScene = game;
 		break;
 	}
@@ -107,6 +115,20 @@ void SceneManager::Update(float deltaTime) {
 	// シーン終了時、次のシーンに遷移
 	if (currentScene->IsEnd()) {
 		int next = currentScene->NextScene();
+
+
+		// --- GameScene → SP_Scene に遷移する直前に残り時間を退避 ---
+		if (sceneID == (int)SceneState::Game_Scene &&
+			next == (int)SceneState::SP_Scene)
+		{
+			if (auto* game = dynamic_cast<GameScene*>(currentScene))
+			{
+				// 後述 2) で GameScene に Getter を追加します
+				SetCarryOverTimeSec((int)game->GetTimeLimitSec());
+			}
+
+		}
+
 
 		// GameScene → プレイヤー死亡時の処理
 		if (sceneID == (int)SceneState::Game_Scene &&
