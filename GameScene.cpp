@@ -848,44 +848,44 @@ void GameScene::Draw()
 	SetFontSize(GameConfig::UI_FONT_SCORE);
 
 
-	// === ラベル画像の切り替え＋ログ（GameScene::Draw() の UI セクションに配置） ===
-	// 目的：Score（通常ラベル画像）／SPScore（SPラベル画像）／どちらもなし の3状態を可視化する
+	//// === ラベル画像の切り替え＋ログ（GameScene::Draw() の UI セクションに配置） ===
+	//// 目的：Score（通常ラベル画像）／SPScore（SPラベル画像）／どちらもなし の3状態を可視化する
 
-	// 1) SP中かどうかで大枠を分岐（isMap5Start は既存フラグ）
-	if (isMap5Start)
-	{
-		// --- SP中 ---
-		if (UI_Score_SP >= 0)
-		{
-			// SPScore ラベル画像がある ⇒ それを描画
-			DrawGraph(x_a, y_a, UI_Score_SP, TRUE);
-			printfDx("LABEL: SPScore IMAGE DRAWN (SP中にSPラベルを表示)\n");
-		}
-		else
-		{
-			// 画像が無い ⇒ 何も描かない（＝どちらのラベルも表示されていない）
-			printfDx("LABEL: NONE (SP中だがSPScore画像なし → ラベル未表示)\n");
-			// デバッグで仮に見たいなら暫定テキストを出しても良い（本番は外す）
-			// DrawString(x_a, y_a, "SPScore:", ColorConfig::White);
-		}
-	}
-	else
-	{
-		// --- 通常（SPではない） ---
-		if (UI_Score >= 0)
-		{
-			// Score ラベル画像がある ⇒ それを描画
-			DrawGraph(0, 0, UI_Score, TRUE);
-			printfDx("LABEL: Score IMAGE DRAWN (通常にScoreラベルを表示)\n");
-		}
-		else
-		{
-			// 画像が無い ⇒ 何も描かない（＝どちらのラベルも表示されていない）
-			printfDx("LABEL: NONE (通常だがScore画像なし → ラベル未表示)\n");
-			// デバッグ用の暫定テキスト例
-			// DrawString(x_a, y_a, "SCORE:", ColorConfig::White);
-		}
-	}
+	//// 1) SP中かどうかで大枠を分岐（isMap5Start は既存フラグ）
+	//if (isMap5Start)
+	//{
+	//	// --- SP中 ---
+	//	if (UI_Score_SP >= 0)
+	//	{
+	//		// SPScore ラベル画像がある ⇒ それを描画
+	//		DrawGraph(x_a, y_a, UI_Score_SP, TRUE);
+	//		printfDx("LABEL: SPScore IMAGE DRAWN (SP中にSPラベルを表示)\n");
+	//	}
+	//	else
+	//	{
+	//		// 画像が無い ⇒ 何も描かない（＝どちらのラベルも表示されていない）
+	//		printfDx("LABEL: NONE (SP中だがSPScore画像なし → ラベル未表示)\n");
+	//		// デバッグで仮に見たいなら暫定テキストを出しても良い（本番は外す）
+	//		// DrawString(x_a, y_a, "SPScore:", ColorConfig::White);
+	//	}
+	//}
+	//else
+	//{
+	//	// --- 通常（SPではない） ---
+	//	if (UI_Score >= 0)
+	//	{
+	//		// Score ラベル画像がある ⇒ それを描画
+	//		DrawGraph(0, 0, UI_Score, TRUE);
+	//		printfDx("LABEL: Score IMAGE DRAWN (通常にScoreラベルを表示)\n");
+	//	}
+	//	else
+	//	{
+	//		// 画像が無い ⇒ 何も描かない（＝どちらのラベルも表示されていない）
+	//		printfDx("LABEL: NONE (通常だがScore画像なし → ラベル未表示)\n");
+	//		// デバッグ用の暫定テキスト例
+	//		// DrawString(x_a, y_a, "SCORE:", ColorConfig::White);
+	//	}
+	//}
 
 
 	//// -------------------------
@@ -900,7 +900,7 @@ void GameScene::Draw()
 	//	// ★ SP中に数値も表示したいなら次を有効化
 	//	 DrawFormatString(x_a, y_a, ColorConfig::Cyan, " %06d", SPscore);
 	//}
-
+	//
 	//// -------------------------
 	//// 2) ラベル画像の出し分け（ここが本題）
 	////    - SP中: UI_Score_SP（SPScore.png）
@@ -916,7 +916,7 @@ void GameScene::Draw()
 	//		DrawFormatString(x_a, y_a, ColorConfig::Cyan, " %06d", score);       // ★ 通常ラベル
 	//	}
 	//}
-
+	//
 	//SetFontSize(GameConfig::UI_FONT_SCORE);
 	////DrawFormatString( x_a, y_a, ColorConfig::White, " %06d", score);
 	//
@@ -934,6 +934,56 @@ void GameScene::Draw()
 	//
 	//
 	
+
+
+// === ここから UI 出力ブロック ===
+	SetFontSize(GameConfig::UI_FONT_SCORE);
+
+	// --- 1) ラベル画像の切り替え（画像は一度だけ描く & アンカーを揃える） ---
+	if (isMap5Start) 
+	{
+		if (UI_Score_SP >= 0) 
+		{
+			DrawGraph(0, 0, UI_Score_SP, TRUE);            // SP中: SPScore.png を (0,0)
+			printfDx("LABEL: SPScore IMAGE DRAWN (SP中にSPラベルを表示)\n");
+		}
+		else 
+		{
+			// 画像が無いときは描かない（必要なら仮テキストをここで）
+			// DrawString(x_a, y_a, "SPScore:", ColorConfig::White);
+			printfDx("LABEL: NONE (SP中だがSPScore画像なし → ラベル未表示)\n");
+		}
+	}
+	else 
+	{
+		if (UI_Score >= 0) 
+		{
+			DrawGraph(0, 0, UI_Score, TRUE);               // 通常: Score.png を (0,0)
+			printfDx("LABEL: Score IMAGE DRAWN (通常にScoreラベルを表示)\n");
+		}
+		else 
+		{
+			printfDx("LABEL: NONE (通常だがScore画像なし → ラベル未表示)\n");
+		}
+	}
+
+	// --- 2) 数値の描画（※ここが現在コメントアウトされているので復活が必要） ---
+	SetFontSize(GameConfig::UI_FONT_SCORE);
+	if (isMap5Start) {
+		// SP中に数値を出したいなら SPscore を描く（出したくない運用ならこの行を消す）
+		DrawFormatString(x_a, y_a, ColorConfig::Cyan, " %06d", SPscore);
+		printfDx("VALUE: SPscore drawn = %d\n", SPscore);
+	}
+	else {
+		// 通常は通常スコアを描く
+		DrawFormatString(x_a, y_a, ColorConfig::White, " %06d", score);
+		printfDx("VALUE: score drawn = %d\n", score);
+	}
+
+
+
+
+
 	DrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
 	
 	SetFontSize(GameConfig::FONT_SIZE);
