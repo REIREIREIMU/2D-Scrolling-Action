@@ -27,6 +27,7 @@ private:
     // 表示資源
     int ClearImage = -1; // 背景画像（キーボード）
     int Clear_XboxImage = -1; // 背景画像（コントローラー）
+   
 
     // 表示値（今回は固定表示：アニメ演出なし）
     int displayScore = 0;

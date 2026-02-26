@@ -84,11 +84,19 @@ void SceneManager::ChangeScene(int id) {
 		game->SetLives(PlayerLives);			  // 残機を渡す
 		game->SetScore(resultScore,SPBonus);
 
+		// --- ここでスコアを渡す（退避があるときのみ）---
+		if (GetCarryOverScore() >= 0) {
+			game->SetScore(GetCarryOverScore(), SPBonus);
+			ClearCarryOverScore();
+		}
+
+
 
 		// --- ここで復元（退避があるときのみ）---
 		if (GetCarryOverTimeSec() >= 0)
 		{
-			game->SetCarryOverTime(GetCarryOverTimeSec());  // 後述 2) で実装
+			game->SetCarryOverTime(GetCarryOverTimeSec());  // GameScene に残り時間を渡す
+			
 			ClearCarryOverTime();
 		}
 		currentScene = game;
@@ -125,6 +133,7 @@ void SceneManager::Update(float deltaTime) {
 			{
 				// 後述 2) で GameScene に Getter を追加します
 				SetCarryOverTimeSec((int)game->GetTimeLimitSec());
+				SetCarryOverScore(game->GetCurrentScore());
 			}
 
 		}

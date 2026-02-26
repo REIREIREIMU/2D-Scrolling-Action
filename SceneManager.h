@@ -29,6 +29,7 @@ private:
 	static bool isBonusClear;//ボーナスステージから戻った時の座標を決めるために使うk
 	//static int itemBonus;	  // アイテムボーナス
 	int carryOverTimeSec = -1;// タイムボーナス計算用の残り時間（秒単位）
+	int carryOverScore = -1;// タイムボーナス計算用のスコア（必要なら）
 
 	int	 sceneID      = -1;
 	int  CurrentStage =  1;   // 現在のステージ番号を追加 (1,2,3など)
@@ -44,11 +45,16 @@ public:
 	SceneBase* GetCurrentScene();
 
 	// 残り時間の退避＆取得＆クリア
-	void SetCarryOverTimeSec(int sec) { carryOverTimeSec = sec; }
-	int  GetCarryOverTimeSec() const { return carryOverTimeSec; }
+	void SetCarryOverTimeSec(int sec) { carryOverTimeSec = sec; }//	GameScene から残り時間を受け取るための Setter
+	int  GetCarryOverTimeSec() const { return carryOverTimeSec; }//	GameScene から受け取った残り時間を SPScene で利用するための Getter
 	void ClearCarryOverTime() { carryOverTimeSec = -1; }
 
 
+
+
+	void SetCarryOverScore(int sc) { carryOverScore = sc; }// GameScene からスコアを受け取るための Setter
+	int  GetCarryOverScore() const { return carryOverScore; }// GameScene から受け取ったスコアを SPScene で利用するための Getter
+	void ClearCarryOverScore() { carryOverScore = -1; }// GameScene から受け取ったスコアをクリアするためのメソッド（SPScene で呼び出す想定）
 
 
 

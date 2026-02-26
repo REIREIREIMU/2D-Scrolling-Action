@@ -72,6 +72,9 @@ public:
 	int SPitemGetCount = 0;
 
 
+	// スコア取得用Getterを追加
+	int GetCurrentScore() const { return score; }
+
 private:
 	void Update(/*float*/ double deltaTime);
 	bool CheckCollision(const Rect& a, const Rect& b);
@@ -104,6 +107,15 @@ private:
 	std::array<int, 2> brickPieceImages = { -1, -1 };
 	int backgroundImage = -1; // 背景画像用
 	int bonusBackGroundImg = -1;//ボーナス画面背景用
+	int SPUI_Image = -1;// SPUI用の画像
+
+	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）
+
+	bool spIntroActive_ = false; // BonusStart 中フラグ
+	float spIntroRemain_ = 0.0f;  // 残り秒数
+	static constexpr float SP_INTRO_SEC = 2.0f; // 表示時間（例：2秒）
+
+
 
 	// 死亡時のエフェクトの処理
 	int deathEffectImg = -1;	// 爆発エフェクト画像
@@ -173,7 +185,7 @@ private:
 
 	// ステージ2の10秒効果用
 	float stage5TimeSec = -1.0f; // -1: 無効（未入場/効果なし）
-	static constexpr float STAGE5_SteatTime = 14.0f; // 10秒固定
+	static constexpr float STAGE5_SteatTime = 10.0f; // 10秒固定
 
 	//敵と当たった時の無敵時間用
 	float lastHitTime=0;

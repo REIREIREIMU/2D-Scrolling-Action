@@ -43,7 +43,7 @@ void SPScene::Update()
 
 void SPScene::Draw()
 {
-
+    
 
     // ”wŒi
     if (controllerConnected && Clear_XboxImage >= 0) {

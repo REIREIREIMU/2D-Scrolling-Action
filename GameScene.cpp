@@ -170,8 +170,9 @@ void GameScene::Init() {
 
 	// ステージの描画ファイルの読み込み
 	backgroundImage = LoadGraph("image/NewBackGround.png");
+	SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
-
+	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
 
 	//player.SetBlockImages(blockImages);
 
@@ -230,10 +231,11 @@ void GameScene::StageSet(const Rect &position)
 	if (stageNo == 1) stageMap = "map/mapData1.csv";
 	//else if (stageNo == 2) stageMap = "map/mapData2.csv";
 	else if (stageNo == 2) stageMap = "map/mapData2.csv";
+	if (stageNo == 5)
 	{
-		score = 0;
+		stageMap = "map/mapDataSP.csv";//SPステージのマップ
+
 	}
-	if (stageNo == 5) stageMap = "map/mapDataSP.csv";//SPステージのマップ
 
 
 	//対応したマップ読み込み
@@ -338,12 +340,33 @@ void GameScene::Update()
 			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を3に固定する
 
 
+			// ★ BonusStart（イントロ）開始
+			spIntroActive_ = true;
+			spIntroRemain_ = SP_INTRO_SEC;
+			if (SP_BonusStart_Image < 0) {
+				SP_BonusStart_Image = LoadGraph("image/BonusStart.png"); // 画像がある場合
+			}
+			player.SetControllable(false);     // 入力禁止
+			player.SetInvincible(true);        // 念のため無敵
+
+			// ★ ここでは SP タイマーを開始しない（本開始はイントロ終了時）
+			// spTimerActive_ = true;                   ← 消す
+			// spTimeRemain_  = STAGE5_SteatTime;       ← 消す
+
+			isMap5Start = true;                // 背景やUIはSPモードに
+			return;
+
 			// ここから10秒間固定カウント開始
 			stage5TimeSec = elapsedSec;
 
 			// --- ★ SPタイマー開始（見た目用） ---
 			spTimerActive_ = true;
 			spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
+
+			// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
+			if (SPUI_Image < 0) {
+				SPUI_Image = LoadGraph("image/SP_UI.png");
+			}
 
 			isMap5Start = true;
 			return;
@@ -395,23 +418,67 @@ void GameScene::Update()
 // deltaTime付きの本来のUpdate
 void GameScene::Update(/*float*/ double deltaTime) {
 
+
+
+	// ===== SPイントロの進行（BonusStart）=====
+	if (spIntroActive_) {
+		spIntroRemain_ -= (float)deltaTime;
+		if (spIntroRemain_ <= 0.0f) {
+			// イントロ終了 → SP本開始
+			spIntroActive_ = false;
+			spTimerActive_ = true;
+			spTimeRemain_ = STAGE5_SteatTime;  // 例：10.0f
+			player.SetControllable(true);
+			player.SetInvincible(false);
+		}
+		else {
+			// イントロ中はゲーム進行を止める（描画だけ行う）
+			return;
+		}
+	}
+
+
+
+
+
+
 	// deltaTime をセット
 	deltaTimeForUpdate = (float)deltaTime;
 
 	// 制限時間を減少
-	timeLimit -= deltaTime;
-	// 時間が 0になるとの死亡
-	if (timeLimit <= 0) {
-		player.isDead = true;
-		timeLimit = 0;
-	}
-	else {
-		// ★ SP中：通常タイマーは停止、SP残りだけを減算
-		if (spTimerActive_) {
-			spTimeRemain_ -= (float)deltaTime;
-			if (spTimeRemain_ < 0.0f) spTimeRemain_ = 0.0f;
+	//timeLimit -= deltaTime;
+
+
+
+// ★ 修正後（通常タイマーはSP中に動かさない）
+// 制限時間（通常）を減少：SP中は止める
+	if (!isMap5Start) {
+		timeLimit -= deltaTime;
+		if (timeLimit <= 0) {
+			player.isDead = true;
+			timeLimit = 0;
 		}
 	}
+
+	// ★ SP中のカウントダウンは SP 残りだけを減らす（通常タイマーとは独立）
+	if (spTimerActive_) {
+		spTimeRemain_ -= (float)deltaTime;
+		if (spTimeRemain_ < 0.0f) spTimeRemain_ = 0.0f;
+	}
+
+
+	//// 時間が 0になるとの死亡
+	//if (timeLimit <= 0) {
+	//	player.isDead = true;
+	//	timeLimit = 0;
+	//}
+	//else {
+	//	// ★ SP中：通常タイマーは停止、SP残りだけを減算
+	//	if (spTimerActive_) {
+	//		spTimeRemain_ -= (float)deltaTime;
+	//		if (spTimeRemain_ < 0.0f) spTimeRemain_ = 0.0f;
+	//	}
+	//}
 
 
 		// --- ★ 通常タイマー停止／SPタイマー動作 ---
@@ -549,7 +616,16 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			 playerRect.Intersects(block.GetRect()))
 			{
 				block.BreakBrick();
-				score += GameConfig::BREAK_SCORE; // スコア加算
+
+
+				if (!isMap5Start) {
+					score += GameConfig::BREAK_SCORE;    // 通常時のみ score に加算
+				}
+				else {
+					// （必要なら）SPscore += GameConfig::BREAK_SCORE;
+				}
+
+				//score += GameConfig::BREAK_SCORE; // スコア加算
 
 				 //レンガ破壊時の効果音を再生
 				PlaySoundMem(BreakBrick_Sound, DX_PLAYTYPE_BACK);
@@ -564,7 +640,17 @@ void GameScene::Update(/*float*/ double deltaTime) {
 				playerRect.Intersects(block.GetRect()))
 			{
 				block.BreakBrick();
-				score += GameConfig::BREAK_SCORE; // スコア加算
+
+
+				if (!isMap5Start) {
+					score += GameConfig::BREAK_SCORE;    // 通常時のみ score に加算
+				}
+				else {
+					// （必要なら）SPscore += GameConfig::BREAK_SCORE;
+				}
+
+
+				//score += GameConfig::BREAK_SCORE; // スコア加算
 
 				//レンガ破壊時の効果音を再生
 				PlaySoundMem(BreakBrick_Sound, DX_PLAYTYPE_BACK);
@@ -586,7 +672,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			else
 			{
 				itemCollected[i] = true;
-				score += GameConfig::ITEM_SCORE; // スコア加算
+				//score += GameConfig::ITEM_SCORE; // スコア加算
 				SPscore += GameConfig::ITEM_SCORE; // ボーナススコア加算
 				SPitemGetCount++;
 			}
@@ -637,7 +723,17 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			{
 				enemies.erase(enemies.begin() + i);	// 敵消滅
 				player.Bounce();
-				score += GameConfig::ENEMY_SCORE;	// スコア加算
+
+
+				if (!isMap5Start) {
+					score += GameConfig::ENEMY_SCORE;     // 通常時のみ score に加算
+				}
+				else {
+					// （必要なら）SPscore += GameConfig::ENEMY_SCORE;
+				}
+
+
+				//score += GameConfig::ENEMY_SCORE;	// スコア加算
 				// 音の再生は保存した killedType を使う
 				if (killedType == 0 || killedType == 1)
 				{
@@ -778,6 +874,10 @@ void GameScene::Draw()
 	{
 		DrawGraph(0, 0, bonusBackGroundImg, TRUE);
 	}
+
+	
+
+
 
 	// 敵描画
 	for (const auto& enemy : enemies) {
@@ -991,6 +1091,10 @@ void GameScene::Draw()
 	DrawGraph(0, 0, UI_Player_Lives, TRUE);	// 残機表示
 	DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
 
+	if (isMap5Start && SPUI_Image >= 0) {
+		// ★ SPステージ中のみSP用UIパネルを描画（座標は例。必要に応じて調整）
+		DrawGraph(0, 0, SPUI_Image, TRUE);
+	}
 
 	SetFontSize(GameConfig::UI_FONT_TIMER);
 	if (!isMap5Start) {
@@ -1002,6 +1106,37 @@ void GameScene::Draw()
 		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
 	}
 
+	// ===== 最前面：SPUI（SP中のみ／ただしイントロ中は出さない）=====
+	if (isMap5Start && SPUI_Image >= 0 && !spIntroActive_) {
+		DrawGraph(0, 0, SPUI_Image, TRUE);
+	}
+
+	// ===== 最前面：BonusStart（イントロ中のみ）=====
+	if (spIntroActive_) {
+		// 半透明オーバレイ（薄暗くする）←好み
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 160);
+		DrawBox(0, 0, GlobalConfig::SCREEN_WIDTH, GlobalConfig::SCREEN_HEIGHT, GetColor(0, 0, 0), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+		if (SP_BonusStart_Image >= 0) {
+			// 画像がある場合は中央に
+			int w = 0, h = 0;
+			GetGraphSize(SP_BonusStart_Image, &w, &h);
+			int cx = (GlobalConfig::SCREEN_WIDTH - w) / 2;
+			int cy = (GlobalConfig::SCREEN_HEIGHT - h) / 2;
+			DrawGraph(cx, cy, SP_BonusStart_Image, TRUE);
+		}
+		else {
+			// 画像が無い場合はテキストで代用
+			SetFontSize(72);
+			const char* msg = "BONUS START!";
+			int tw = GetDrawStringWidthToHandle(msg, strlen(msg), -1);
+			int tx = (GlobalConfig::SCREEN_WIDTH - tw) / 2;
+			int ty = (GlobalConfig::SCREEN_HEIGHT - 72) / 2;
+			DrawString(tx, ty, msg, GetColor(255, 255, 0));
+			SetFontSize(GameConfig::FONT_SIZE);
+		}
+	}
 
 }
 
