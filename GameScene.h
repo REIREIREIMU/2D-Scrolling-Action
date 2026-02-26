@@ -156,6 +156,7 @@ private:
 
 	// ゲームUI画像
 	int UI_Score = -1;			// スコアの画像
+	int UI_Score_SP = -1;   // 「SPScore」ラベル画像用
 	int UI_Timer = -1;			// タイマーの画像
 	int UI_Player_Lives = -1;	// 残機表示の画像
 
