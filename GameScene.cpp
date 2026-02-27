@@ -229,7 +229,6 @@ void GameScene::StageSet(const Rect &position)
 	//文字列からCSV形式に変更
 	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
 	if (stageNo == 1) stageMap = "map/mapData1.csv";
-	//else if (stageNo == 2) stageMap = "map/mapData2.csv";
 	else if (stageNo == 2) stageMap = "map/mapData2.csv";
 	else if (stageNo==3) stageMap = "map/mapData3.csv";
 	else if (stageNo == 4) stageMap = "map/mapData4.csv";
@@ -355,8 +354,8 @@ void GameScene::Update()
 			// spTimerActive_ = true;                   ← 消す
 			// spTimeRemain_  = STAGE5_SteatTime;       ← 消す
 
-			isMap5Start = true;                // 背景やUIはSPモードに
-			return;
+			//isMap5Start = true;                // 背景やUIはSPモードに
+			//return;
 
 			// ここから10秒間固定カウント開始
 			stage5TimeSec = elapsedSec;
@@ -366,7 +365,8 @@ void GameScene::Update()
 			spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
 
 			// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
-			if (SPUI_Image < 0) {
+			if (SPUI_Image < 0) 
+			{
 				SPUI_Image = LoadGraph("image/SP_UI.png");
 			}
 
@@ -461,6 +461,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 			timeLimit = 0;
 		}
 	}
+
 
 	// ★ SP中のカウントダウンは SP 残りだけを減らす（通常タイマーとは独立）
 	if (spTimerActive_) {
