@@ -265,8 +265,11 @@ void GameScene::StageSet(const Rect &position)
 	//(もともとの位置だと常にロードされてマップの切り替えができなかった)
 	if (stageNo == 1) stageMap = "map/mapData1.csv";
 	else if (stageNo == 2) stageMap = "map/mapData2.csv";
-	else if (stageNo==3) stageMap = "map/mapData3.csv";
-	else if (stageNo == 4) stageMap = "map/mapData4.csv";
+	else (int)SceneState::Title_Scene;
+	
+	
+	
+	
 	if (stageNo == 5)
 	{
 		stageMap = "map/mapDataSP.csv";//SPステージのマップ
@@ -314,7 +317,7 @@ void GameScene::SetDeltaTime(float dt)
 
 
 // SceneBase から呼ばれる Update（引数なし）
-void GameScene::Update() 
+void GameScene::Update()
 {
 	//経過時間を進める（SceneManager->SetDeltaTime で受け取った dt が入っている前提）
 	elapsedSec += deltaTimeForUpdate;
@@ -331,8 +334,8 @@ void GameScene::Update()
 		{
 
 
-				//10秒以内 → 体型3を毎フレーム再適用（保険）
-			if (player.GetFatState() != FatState::Normal) 
+			//10秒以内 → 体型3を毎フレーム再適用（保険）
+			if (player.GetFatState() != FatState::Normal)
 			{
 				player.SetWidthAndFix(PlayerConfig::WIDTH_NORMAL, blocks);
 			}
@@ -360,91 +363,6 @@ void GameScene::Update()
 		// ステージ2以外、または監視無効時は安全のためフラグを落とす
 		spCountActive = false;
 	}
-
-
-	Update(deltaTimeForUpdate);
-
-	for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
-	{
-		if (player.GetRect().Intersects(trigger))//プレイヤーの当たり判定とLの位置が重なったとき
-		{
-			stageNo = 5;//落下先のマップ
-			StageSet(map.playerStart);//マップをロードする
-
-
-			player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を3に固定する
-
-
-			// ★ BonusStart（イントロ）開始
-			spIntroActive_ = true;
-			spIntroRemain_ = SP_INTRO_SEC;
-			if (SP_BonusStart_Image < 0) {
-				SP_BonusStart_Image = LoadGraph("image/BonusStart.png"); // 画像がある場合
-			}
-			player.SetControllable(false);     // 入力禁止
-			player.SetInvincible(true);        // 念のため無敵
-
-			// ★ ここでは SP タイマーを開始しない（本開始はイントロ終了時）
-			// spTimerActive_ = true;                   ← 消す
-			// spTimeRemain_  = STAGE5_SteatTime;       ← 消す
-
-			//isMap5Start = true;                // 背景やUIはSPモードに
-			//return;
-
-			// ここから10秒間固定カウント開始
-			stage5TimeSec = elapsedSec;
-
-			// --- ★ SPタイマー開始（見た目用） ---
-			//spTimerActive_ = true;
-			//spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
-
-			// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
-			if (SPUI_Image < 0) 
-			{
-				//SPUI_Image = LoadGraph("image/SP_UI.png");
-			}
-
-			isMap5Start = true;
-			return;
-		}
-	}
-
-	
-	for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
-	{
-		
-		if (player.GetRect().Intersects(trigger))
-		{
-			isMap5Clear = true;
-			SceneManager::SetSPScore(SPscore);
-			SceneManager::SetItemCount(SPitemGetCount);
-			SceneManager::SetBonusClear(isMap5Clear);
-			StopSoundMem(Main_Bgm);
-			endFlag = true;
-			nextSceneID = (int)SceneState::SP_Scene;
-		}
-		
-	}
-	// ★ クリア条件の監視（SPステージ5のとき、10秒経過後に U トリガーを踏んでいるか）
-	if (elapsedSec-stage5TimeSec>=13)//ここで値を入れているからSP側でずれが生じていた
-	{
-		if (isMap5Start!=false&&isMap5Clear != true)
-		{
-			isMap5Clear = true;
-			SceneManager::SetSPScore(SPscore);
-			SceneManager::SetItemCount(SPitemGetCount);
-			SceneManager::SetBonusClear(isMap5Clear);
-			StopSoundMem(Main_Bgm);
-			endFlag = true;
-			nextSceneID = (int)SceneState::SP_Scene;
-			return;
-		}
-		
-
-
-		
-	}
-
 	showNotFool_ = false; // 毎フレーム初期化（デフォルト非表示）
 
 	{
@@ -457,19 +375,169 @@ void GameScene::Update()
 		footRect.y += playerRect.h - 1; // ボトムに沿わせる
 		footRect.h = 2;                 // 2px 程度の薄い帯
 
-		for (const auto& trigger : fallPointTriggers) 
+		for (const auto& trigger : fallPointTriggers)
 		{
-			if (footRect.Intersects(trigger)) 
+			if (footRect.Intersects(trigger))
 			{
 				// Fat3/Fat4は非表示、それ以外は表示
 				showNotFool_ = !isEnough;
 				break;
 			}
 		}
+
+		Update(deltaTimeForUpdate);
+
+		for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
+		{
+			if (player.GetRect().Intersects(trigger))//プレイヤーの当たり判定とLの位置が重なったとき
+			{
+				stageNo = 5;//落下先のマップ
+				StageSet(map.playerStart);//マップをロードする
+
+
+				player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);//体系を3に固定する
+
+
+				// ★ BonusStart（イントロ）開始
+				spIntroActive_ = true;
+				spIntroRemain_ = SP_INTRO_SEC;
+				if (SP_BonusStart_Image < 0) {
+					SP_BonusStart_Image = LoadGraph("image/BonusStart.png"); // 画像がある場合
+				}
+				player.SetControllable(false);     // 入力禁止
+				player.SetInvincible(true);        // 念のため無敵
+
+				// ★ ここでは SP タイマーを開始しない（本開始はイントロ終了時）
+				// spTimerActive_ = true;                   ← 消す
+				// spTimeRemain_  = STAGE5_SteatTime;       ← 消す
+
+				//isMap5Start = true;                // 背景やUIはSPモードに
+				//return;
+
+				// ここから10秒間固定カウント開始
+				stage5TimeSec = elapsedSec;
+
+				// --- ★ SPタイマー開始（見た目用） ---
+				//spTimerActive_ = true;
+				//spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
+
+				// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
+				if (SPUI_Image < 0)
+				{
+					//SPUI_Image = LoadGraph("image/SP_UI.png");
+				}
+
+				isMap5Start = true;
+				return;
+			}
+		}
+
+		showNotFool_ = false; // 毎フレーム初期化（デフォルト非表示）
+		{
+
+			Rect playerRect = player.GetRect();
+			Rect footRect = playerRect;
+			footRect.y += playerRect.h - 1;
+			footRect.h = 2;
+
+			for (const auto& trigger : fallTriggers) // L
+			{
+				if (footRect.Intersects(trigger)
+					&& spEntryArmed_            // ← H で武装済み
+					&& !isMap5Start             // ← 既にSP中ではない
+					&& stageNo != 5)            // ← 念のため
+				{
+					stageNo = 5;                       // SPマップへ
+					StageSet(map.playerStart);         // マップロード
+
+					// SP入場時のSPカウントを明示的に初期化
+					SPitemGetCount = 0;
+
+					// 体系を固定したい幅に（ここはお好みで調整）
+					player.SetWidthAndFix(PlayerConfig::WIDTH_FAT_1, blocks);
+
+					// イントロ開始（タイマーはイントロ終了時に開始）
+					spIntroActive_ = true;
+					spIntroRemain_ = SP_INTRO_SEC;
+					if (SP_BonusStart_Image < 0) {
+						SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
+					}
+					player.SetControllable(false);
+					player.SetInvincible(true);
+
+					// 入場時刻を記録（保険）
+					stage5TimeSec = elapsedSec;
+
+					isMap5Start = true;
+
+					// 一度使ったら解除（再入場防止）
+					spEntryArmed_ = false;
+					spArmTimeout_ = 0.0f;
+
+					return;
+				}
+			}
+
+
+			bool onH = false;
+			for (const auto& trigger : fallPointTriggers) // H
+			{
+				if (footRect.Intersects(trigger))
+				{
+					// Fat3/Fat4は非表示、それ以外は警告を表示
+					showNotFool_ = !isEnough;
+					onH = true;
+					break;
+				}
+			}
+
+			// H 上かつ Fat 条件OKなら「武装ON」＋猶予リセット
+			if (onH && isEnough)
+			{
+				spEntryArmed_ = true;
+				spArmTimeout_ = SP_ARM_WINDOW_SEC;
+			}
+			else
+			{
+				// 離れている間は猶予を減らす／切れたら解除
+				if (spArmTimeout_ > 0.0f)
+				{
+					spArmTimeout_ -= deltaTimeForUpdate;
+					if (spArmTimeout_ <= 0.0f)
+					{
+						spArmTimeout_ = 0.0f;
+						spEntryArmed_ = false;
+					}
+				}
+				else
+				{
+					spEntryArmed_ = false;
+				}
+			}
+		}
+
+		for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
+		{
+
+			if (player.GetRect().Intersects(trigger))
+			{
+				isMap5Clear = true;
+				SceneManager::SetSPScore(SPscore);
+				SceneManager::SetItemCount(SPitemGetCount);
+				SceneManager::SetBonusClear(isMap5Clear);
+				StopSoundMem(Main_Bgm);
+				endFlag = true;
+				nextSceneID = (int)SceneState::SP_Scene;
+			}
+			
+		}
+		
+
+		
+
+
+
 	}
-
-
-
 }
 
 // deltaTime付きの本来のUpdate
@@ -522,6 +590,18 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	if (spTimerActive_) {
 		spTimeRemain_ -= (float)deltaTime;
 		if (spTimeRemain_ < 0.0f) spTimeRemain_ = 0.0f;
+	}
+
+	if (spTimerActive_ && spTimeRemain_ <= 0.0f && isMap5Start && !isMap5Clear)
+	{
+		isMap5Clear = true;
+		SceneManager::SetSPScore(SPscore);
+		SceneManager::SetItemCount(SPitemGetCount);
+		SceneManager::SetBonusClear(isMap5Clear);
+		StopSoundMem(Main_Bgm);
+		endFlag = true;
+		nextSceneID = (int)SceneState::SP_Scene;
+		return;
 	}
 
 
@@ -1169,26 +1249,13 @@ void GameScene::Draw()
 		DrawGraph(0, 0, SPUI_Image, TRUE);
 	}
 
-	SetFontSize(GameConfig::UI_FONT_TIMER);
-	if (!isMap5Start) 
-	{
-		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
-	}
-	else {
-		if (UI_Timer >= 0) 
-		//DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
-	}
-
-
 	SetFontSize(GameConfig::UI_Player_Lives);
 	if (!isMap5Start)
 	{
 		if (UI_Player_Lives >= 0) DrawGraph(0, 0, UI_Player_Lives, TRUE);
 		DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", playerLives);
 	}
-	else 
+	else
 	{
 		//if (UI_Timer >= 0)
 		//	//DrawGraph(0, 0, UI_Timer, TRUE);

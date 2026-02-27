@@ -90,7 +90,7 @@ private:
 	std::vector<int> enemyImages;
 	std::vector<int> itemImages;
 
-	std::vector<Rect> fallPointTriggers;
+	std::vector<Rect> fallPointTriggers;//Hの位置を記憶しゲームシーンへ送る
 	std::vector<Rect> fallTriggers;//Lの位置を記憶しゲームシーンへ送る
 	std::vector<Rect> UpTriggers;//Uの位置を記憶しゲームシーンへ送る
 
@@ -114,7 +114,12 @@ private:
 	int SPUI_Image = -1;// SPUI用の画像
 
 	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）[
-	
+
+	// H→L を短時間だけ許可する武装ウィンドウ
+	bool  spEntryArmed_ = false;
+	float spArmTimeout_ = 0.0f;
+	static constexpr float SP_ARM_WINDOW_SEC = 0.75f; // H→L の猶予（調整可）
+
 	
 	int NotFrool_Image = -1; //SPステージに移動できないとき
 	bool showNotFool_ = false;
@@ -122,6 +127,7 @@ private:
 	bool spIntroActive_ = false; // BonusStart 中フラグ
 	float spIntroRemain_ = 0.0f;  // 残り秒数
 	static constexpr float SP_INTRO_SEC = 2.0f; // 表示時間（例：2秒）
+
 
 
 

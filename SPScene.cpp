@@ -17,6 +17,11 @@ void SPScene::Init()
     // 今回は「獲得した SPScore をそのまま見せる」仕様なのでアニメはしない
     displayScore = SPscore_;
 
+    baseScore_ = (sceneManager ? sceneManager->GetCarryOverScore() : 0);
+    totalScore_ = baseScore_ + SPscore_;   // ← 合算
+
+  
+
 }
 
 void SPScene::Update()
@@ -59,18 +64,18 @@ void SPScene::Draw()
     SetFontSize(GlobalConfig::FONT_SIZE);
 
     // 見出し
-    DrawFormatString(x_a, y_a - 60, ColorConfig::Black, "SP SCORE");
+    //DrawFormatString(x_a, y_a - 60, ColorConfig::Black, "SP SCORE");
 
     // SP スコア（6桁ゼロ埋め）
-    DrawFormatString(x_a, y_a, ColorConfig::Black, "%06d", displayScore);
+    DrawFormatString(x_a, SPy_b, ColorConfig::Black, "%06d", displayScore);
 
     // 必要なら SP で取得したアイテム数などを表示（コメントアウト例）
-    // DrawFormatString(x_a, y_b, ColorConfig::Black, "ITEMS: %d", itemCount_);
+    DrawFormatString(x_a, SPy_a, ColorConfig::Black, "%d", itemCount_);
 
     // 操作ガイダンス（背景にテキストがある場合は省略してもOK）
     // 1秒経過後は押下でスキップできることを示す
 
-
+    DrawFormatString(x_a, SPy_c, ColorConfig::Black, " %06d", totalScore_);
 
 
     const int totalFrames = SPConfig::SHOW_DURATION_FRAMES;   // 600
