@@ -170,7 +170,7 @@ void GameScene::Init() {
 
 	// ステージの描画ファイルの読み込み
 	backgroundImage = LoadGraph("image/NewBackGround.png");
-	SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
+	//SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
 	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
 
@@ -367,7 +367,7 @@ void GameScene::Update()
 			// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
 			if (SPUI_Image < 0) 
 			{
-				SPUI_Image = LoadGraph("image/SP_UI.png");
+				//SPUI_Image = LoadGraph("image/SP_UI.png");
 			}
 
 			isMap5Start = true;
@@ -1106,7 +1106,7 @@ void GameScene::Draw()
 	}
 	else {
 		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_));
 	}
 
 	// ===== 最前面：SPUI（SP中のみ／ただしイントロ中は出さない）=====
