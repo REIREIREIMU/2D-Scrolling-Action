@@ -1106,7 +1106,7 @@ void GameScene::Draw()
 	}
 	else {
 		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_));
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
 	}
 
 	// ===== 最前面：SPUI（SP中のみ／ただしイントロ中は出さない）=====
