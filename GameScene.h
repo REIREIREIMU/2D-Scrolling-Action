@@ -89,6 +89,7 @@ private:
 	std::vector<int> enemyImages;
 	std::vector<int> itemImages;
 
+	std::vector<Rect> fallPointTriggers;
 	std::vector<Rect> fallTriggers;//Lの位置を記憶しゲームシーンへ送る
 	std::vector<Rect> UpTriggers;//Uの位置を記憶しゲームシーンへ送る
 
@@ -109,7 +110,8 @@ private:
 	int bonusBackGroundImg = -1;//ボーナス画面背景用
 	int SPUI_Image = -1;// SPUI用の画像
 
-	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）
+	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）[
+	int NotFrool_Image = -1; //SPステージに移動できないとき
 
 	bool spIntroActive_ = false; // BonusStart 中フラグ
 	float spIntroRemain_ = 0.0f;  // 残り秒数
@@ -197,7 +199,7 @@ private:
 
 	// --- SP 区間（stageNo==2）用の簡易タイマー（見た目用）---
 	bool  spTimerActive_ = false;
-	float spTimeRemain_ = 0.0f;     // 10.0f を想定（STAGE2_SteatTime）
+	float spTimeRemain_ = 10.0f;     // 10.0f を想定（STAGE5_SteatTime）
 	bool isMap5Start = false;
 	bool isMap5Clear = false;
 

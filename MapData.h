@@ -26,6 +26,7 @@ public:
     Rect               playerStart;      // プレイヤー初期位置
     Rect               returnPoint;//プレイヤーが戻ってくる位置を保存する
 
+	std::vector<Rect> fallPointTriggers;//Hの座標を保存する
     std::vector<Rect> fallTriggers;//Lの座標を保存する
     std::vector<Rect> UpTriggers;//Uの座標を保存する
 	

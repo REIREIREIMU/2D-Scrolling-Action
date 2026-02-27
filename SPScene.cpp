@@ -21,21 +21,22 @@ void SPScene::Init()
 void SPScene::Update()
 {
 
-    // 経過フレームを進める
-    waitTimer_++;
+    
 
     // 入力受付までの待機
     if (waitTimer_ > SPConfig::WAIT_FRAMES && Input::IsDecide()) {
-        endFlag = true;
+		endFlag = true;// 入力で遷移
+		
     }
 
     // 一定時間で自動遷移（10秒）
-    if (waitTimer_ >= SPConfig::SHOW_DURATION_FRAMES) {
+    if (waitTimer_ >= SPConfig::SHOW_DURATION_FRAMES) 
+    {
         endFlag = true;
     }
-
     // 経過フレームを進める
-    waitTimer_++;
+   
+    // 経過フレームを進める
 	//SPtimer_++;
     // コントローラー接続確認
     controllerConnected = (GetJoypadNum() > 0);
@@ -72,11 +73,11 @@ void SPScene::Draw()
 
 
     const int totalFrames = SPConfig::SHOW_DURATION_FRAMES;   // 600
-    const int remainingFrames = totalFrames - waitTimer_;
-    const int clampedFrames = (remainingFrames > 0) ? remainingFrames : 0;
+	const int remainingFrames = totalFrames - waitTimer_;// 600 - 経過フレーム
+	const int clampedFrames = (remainingFrames > 0) ? remainingFrames : 0;// 0未満は表示しない
 
 
-    const int leftS = (clampedFrames + 59) / 60;
+	const int leftS = (clampedFrames + 59) / 60;// 端数切り上げで秒数表示（例：残り599フレームなら10秒、残り1フレームなら1秒、残り0フレームなら0秒）
     DrawFormatString(x_a, y_d, ColorConfig::Black, "TIME: %d", leftS);
 
 

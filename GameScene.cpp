@@ -173,6 +173,7 @@ void GameScene::Init() {
 	//SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
 	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
+	NotFrool_Image = LoadGraph("image/NotFool.png");
 
 	//player.SetBlockImages(blockImages);
 
@@ -263,6 +264,7 @@ void GameScene::StageSet(const Rect &position)
 	enemies = map.enemies;  // 敵のオブジェクトリスト
 	itemCollected = std::vector<bool>(items.size(), false);
 
+	fallPointTriggers = map.fallPointTriggers;//Hの位置受け取り
 	fallTriggers = map.fallTriggers;//Lの位置受け取り
 	UpTriggers = map.UpTriggers;//Uの位置受け取り
 
@@ -326,13 +328,16 @@ void GameScene::Update()
 	}
 
 
+	
+
+
 
 
 	Update(deltaTimeForUpdate);
 
 	for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
 	{
-		if (player.GetRect().Intersects(trigger))
+		if (player.GetRect().Intersects(trigger))//プレイヤーの当たり判定とLの位置が重なったとき
 		{
 			stageNo = 5;//落下先のマップ
 			StageSet(map.playerStart);//マップをロードする
@@ -375,7 +380,24 @@ void GameScene::Update()
 		}
 	}
 
+	for (const auto & trigger : fallPointTriggers)//Hから触れた処理を受け取ったとき
+	{
 
+		if (player.GetRect().Intersects(trigger) && fat == FatState::Fat3 || fat == FatState::Fat4)
+			//プレイヤーの当たり判定とHの位置が重なったとき、かつ体型が3か4のとき
+		{
+			//何もなし
+		}
+		else
+		{
+			DrawFormatString(x_a, y_a, ColorConfig::Black, "NotFool");
+			LoadGraph("image/NotFool.png");//画像を表示する
+		}
+
+
+	}
+
+	
 
 	
 
@@ -712,6 +734,9 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		bool isHorizontallyOverlapping =
 			playerRect.x + playerRect.w > enemyRect.x &&
 			playerRect.x < enemyRect.x + enemyRect.w;
+
+
+	
 
 		// 敵の上に乗って倒す（Enemy1 or Enemy2 or Enemy3限定）
 		if ((enemies[i].type == 0 || enemies[i].type == 1 || enemies[i].type == 2) &&
@@ -1079,8 +1104,8 @@ void GameScene::Draw()
 	}
 	else {
 		// 通常は通常スコアを描く
-		DrawFormatString(x_a, y_a, ColorConfig::White, " %06d", score);
-		printfDx("VALUE: score drawn = %d\n", score);
+		DrawFormatString(x_a, y_a, ColorConfig::White, " %06d", score + SPscore);
+		printfDx("VALUE: score drawn = %d\n", score+SPscore);
 	}
 
 
