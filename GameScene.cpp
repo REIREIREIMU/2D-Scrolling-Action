@@ -226,6 +226,31 @@ void GameScene::Init() {
 
 void GameScene::StageSet(const Rect &position)
 {
+
+
+	// ★ 進級/新規開始のときだけ、スコア系とタイムを初期化（SP:5 は除外）
+	{
+		const ResetReason r = SceneManager::ConsumeResetReason();
+		if ((r == ResetReason::StageAdvance || r == ResetReason::NewGame) && stageNo != 5)
+		{
+			// --- Score 系を 0 へ ---
+			score = 0;
+			SPscore = 0;          // SP 用を合算しない運用なら 0 に
+			SPitemGetCount = 0;
+
+			// --- タイム系を初期値へ ---
+			// 秒ベース
+			timeLimit = GameConfig::TIME_LIMIT_SEC;      // ← 既定（ヘッダで 300.0f）
+			// フレーム残（60FPS想定。プロジェクトに合わせて調整）
+			timeLimitTotalFrames_ = 60 * 300;          // 例：300 秒
+			timeLimitRemainFrames_ = timeLimitTotalFrames_;
+
+			// carryOver の取り消し（SP から戻る時にだけ使う想定の保険）
+			carryOverTimePending_ = -1;
+		}
+	}
+
+
 	const char* stageMap = nullptr;//ファイルパス用
 	//文字列からCSV形式に変更
 	//(もともとの位置だと常にロードされてマップの切り替えができなかった)

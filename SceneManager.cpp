@@ -16,6 +16,15 @@ int SceneManager::itemCount = 0;
 bool SceneManager::isBonusClear = false;
 //int SceneManager::itemBonus   = 0;
 
+
+namespace 
+{
+	int         g_currentStage = 1;
+	ResetReason g_resetReason = ResetReason::None;
+}
+
+
+
 SceneManager::SceneManager() {
 	currentScene = nullptr;
 	sceneID		 = -1;
@@ -158,9 +167,23 @@ void SceneManager::Draw() {
 	currentScene->Draw();
 }
 
-SceneBase* SceneManager::GetCurrentScene() {
+SceneBase* SceneManager::GetCurrentScene() 
+{
 	return currentScene;
 }
+
+
+void SceneManager::RequestReset(ResetReason reason) 
+{
+	g_resetReason = reason;
+}
+ResetReason SceneManager::ConsumeResetReason() 
+{
+	const ResetReason r = g_resetReason;
+	g_resetReason = ResetReason::None;   // ˆê“x‚¾‚¯—LŒø
+	return r;
+}
+
 
 void SceneManager::NextStage()
 {

@@ -173,6 +173,9 @@ int ClearScene::NextScene()
 {
     if (sceneManager->GetCurrentStage() < sceneManager->GetMaxStage()) {
         sceneManager->IncrementStage();      // ステージを進める
+
+        SceneManager::RequestReset(ResetReason::StageAdvance);
+
         return (int)SceneState::Ready_Scene; // 準備画面のIDを渡す
     }
     else {

@@ -1,11 +1,22 @@
 #pragma once
 #include "SceneBase.h"
 
+
+enum class ResetReason
+{
+	None,
+	StageAdvance,
+	NewGame
+};
+
 // シーン遷移/スコア共有の設定
 namespace SceneFlowConfig {
 	const int START_LIVES = 3; // 初期残機
 	const int MAX_STAGE   = 3; // ステージ最大数
 }
+
+
+
 
 // 各シーンのステータスを定義
 enum class SceneState {
@@ -43,6 +54,11 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 	SceneBase* GetCurrentScene();
+
+
+	static void        RequestReset(ResetReason reason);
+	static ResetReason ConsumeResetReason();
+
 
 	// 残り時間の退避＆取得＆クリア
 	void SetCarryOverTimeSec(int sec) { carryOverTimeSec = sec; }//	GameScene から残り時間を受け取るための Setter
