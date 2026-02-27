@@ -33,10 +33,10 @@ void Player::Init(const Rect & start) {
 	UI_Bar_Red = LoadGraph("image/Red_Bar.png");
 
 	//体型表示
-	UI_Thin = LoadGraph("image/Thin.png");			//Thinの画像
-	UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");	//SlightlyThin画像
-	UI_Normal = LoadGraph("image/Normal.png");		//Normalの画像
-	UI_SlightlyFat = LoadGraph("image/SlightlyFat.png");	//SlightlyFatの画像
+	//UI_Thin = LoadGraph("image/Thin.png");			//Thinの画像
+	//UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");	//SlightlyThin画像
+	//UI_Normal = LoadGraph("image/Normal.png");		//Normalの画像
+	//UI_SlightlyFat = LoadGraph("image/SlightlyFat.png");	//SlightlyFatの画像
 	UI_Fat1 = LoadGraph("image/Fat1.png");			//Fat1の画像
 	UI_Fat2 = LoadGraph("image/Fat2.png");			//Fat2の画像
 	UI_Fat3 = LoadGraph("image/Fat3.png");			//Fat3の画像

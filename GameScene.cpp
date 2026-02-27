@@ -170,10 +170,10 @@ void GameScene::Init() {
 
 	// ステージの描画ファイルの読み込み
 	backgroundImage = LoadGraph("image/NewBackGround.png");
-	//SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
+	SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
 	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
-	NotFrool_Image = LoadGraph("image/BonusStart.png");
+	NotFrool_Image = LoadGraph("image/NotFrool.png");
 
 	//player.SetBlockImages(blockImages);
 
@@ -206,14 +206,23 @@ void GameScene::Init() {
 			enemy.enemy3AttackImg_ = enemyImages[6];  // Enemy3_Attack.png
 		}
 	}
+
 	//UI関係
 	UI_Score		= LoadGraph("image/Score.png");		    //スコアの画像
 	UI_Score_SP = -1;										// 「SPScore」ラベル画像用
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
-	
-	
 
+	int UI_Thin = Image;	//Thinの画像
+	int UI_SlightlyThin = Image;	//SlightlyThin画像
+	int UI_Normal = Image;	//Normalの画像
+	int UI_SlightlyFat = Image;	//SlightlyFatの画像
+
+	UI_Thin = LoadGraph("image/Thin.png");			//Thinの画像
+	UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");	//SlightlyThin画像
+	UI_Normal = LoadGraph("image/Normal.png");		//Normalの画像
+	UI_SlightlyFat = LoadGraph("image/SlightlyFat.png");	//SlightlyFatの画像
+	
 	// --- 通常タイマー復元（SceneManager → carryOver がある時だけ上書き）---
 	if (carryOverTimePending_ >= 0) 
 	{
@@ -335,9 +344,9 @@ void GameScene::Update()
 			// 10秒経過 → 固定解除
 
 			// fallTriggers 命中処理内の末尾（既存 return; の直前）に追加
-			spTimerActive_ = true;// SPタイマーを有効化（見た目用）
+			//spTimerActive_ = true;// SPタイマーを有効化（見た目用）
 
-			stage5TimeSec = -1.0f;
+			//stage5TimeSec = -1.0f;
 
 			// ★ 次回のために差分基準化フラグを落とす
 			spCountActive = false;
@@ -386,8 +395,8 @@ void GameScene::Update()
 			stage5TimeSec = elapsedSec;
 
 			// --- ★ SPタイマー開始（見た目用） ---
-			spTimerActive_ = true;
-			spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
+			//spTimerActive_ = true;
+			//spTimeRemain_ = STAGE5_SteatTime;   // 10.0f（既存の定数）
 
 			// ★ ここでSP専用UIを遅延ロード（未ロード時だけ）
 			if (SPUI_Image < 0) 
@@ -416,8 +425,8 @@ void GameScene::Update()
 		}
 		
 	}
-
-	if (elapsedSec-stage5TimeSec>=10)
+	// ★ クリア条件の監視（SPステージ5のとき、10秒経過後に U トリガーを踏んでいるか）
+	if (elapsedSec-stage5TimeSec>=13)//ここで値を入れているからSP側でずれが生じていた
 	{
 		if (isMap5Start!=false&&isMap5Clear != true)
 		{
@@ -1102,13 +1111,13 @@ void GameScene::Draw()
 		if (UI_Score_SP >= 0) 
 		{
 			DrawGraph(0, 0, UI_Score_SP, TRUE);            // SP中: SPScore.png を (0,0)
-			printfDx("LABEL: SPScore IMAGE DRAWN (SP中にSPラベルを表示)\n");
+			//printfDx("LABEL: SPScore IMAGE DRAWN (SP中にSPラベルを表示)\n");
 		}
 		else 
 		{
 			// 画像が無いときは描かない（必要なら仮テキストをここで）
 			// DrawString(x_a, y_a, "SPScore:", ColorConfig::White);
-			printfDx("LABEL: NONE (SP中だがSPScore画像なし → ラベル未表示)\n");
+			//printfDx("LABEL: NONE (SP中だがSPScore画像なし → ラベル未表示)\n");
 		}
 	}
 	else 
@@ -1116,11 +1125,11 @@ void GameScene::Draw()
 		if (UI_Score >= 0) 
 		{
 			DrawGraph(0, 0, UI_Score, TRUE);               // 通常: Score.png を (0,0)
-			printfDx("LABEL: Score IMAGE DRAWN (通常にScoreラベルを表示)\n");
+			//printfDx("LABEL: Score IMAGE DRAWN (通常にScoreラベルを表示)\n");
 		}
 		else 
 		{
-			printfDx("LABEL: NONE (通常だがScore画像なし → ラベル未表示)\n");
+			//printfDx("LABEL: NONE (通常だがScore画像なし → ラベル未表示)\n");
 		}
 	}
 
@@ -1129,44 +1138,117 @@ void GameScene::Draw()
 	if (isMap5Start) {
 		// SP中に数値を出したいなら SPscore を描く（出したくない運用ならこの行を消す）
 		DrawFormatString(x_a, y_a, ColorConfig::Cyan, " %06d", SPscore);
-		printfDx("VALUE: SPscore drawn = %d\n", SPscore);
+		//printfDx("VALUE: SPscore drawn = %d\n", SPscore);
 	}
 	else {
 		// 通常は通常スコアを描く
 		DrawFormatString(x_a, y_a, ColorConfig::White, " %06d", score + SPscore);
-		printfDx("VALUE: score drawn = %d\n", score+SPscore);
+		//printfDx("VALUE: score drawn = %d\n", score+SPscore);
 	}
 
 
 
 
 
-	DrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
+	//DrawFormatString( x_c, y_c, ColorConfig::Green, "×%d", playerLives);
 	
 	SetFontSize(GameConfig::FONT_SIZE);
 	//DrawGraph(0, 0, UI_Score, TRUE);		// スコア表示
-	DrawGraph(0, 0, UI_Player_Lives, TRUE);	// 残機表示
-	DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
+	//DrawGraph(0, 0, UI_Player_Lives, TRUE);	// 残機表示
+	//DrawGraph(0, 0, UI_Timer, TRUE);		// タイマー表示
 
 	if (isMap5Start && SPUI_Image >= 0) {
 		// ★ SPステージ中のみSP用UIパネルを描画（座標は例。必要に応じて調整）
 		DrawGraph(0, 0, SPUI_Image, TRUE);
 	}
 
-	SetFontSize(GameConfig::UI_FONT_TIMER);
-	if (!isMap5Start) {
-		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
-	}
-	else {
-		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
-		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
-	}
+	
 
 	// ===== 最前面：SPUI（SP中のみ／ただしイントロ中は出さない）=====
 	if (isMap5Start && SPUI_Image >= 0 && !spIntroActive_) {
 		DrawGraph(0, 0, SPUI_Image, TRUE);
 	}
+
+	SetFontSize(GameConfig::UI_FONT_TIMER);
+	if (!isMap5Start) 
+	{
+		if (UI_Timer >= 0) DrawGraph(0, 0, UI_Timer, TRUE);
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)timeLimit);
+	}
+	else {
+		if (UI_Timer >= 0) 
+		//DrawGraph(0, 0, UI_Timer, TRUE);
+		DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+
+	SetFontSize(GameConfig::UI_Player_Lives);
+	if (!isMap5Start)
+	{
+		if (UI_Player_Lives >= 0) DrawGraph(0, 0, UI_Player_Lives, TRUE);
+		DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", playerLives);
+	}
+	else 
+	{
+		//if (UI_Timer >= 0)
+		//	//DrawGraph(0, 0, UI_Timer, TRUE);
+		//	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+
+	SetFontSize(UI_Thin);
+	if (!isMap5Start)
+	{
+		if (UI_Thin >= 0) DrawGraph(0, 0, UI_Thin, TRUE);
+		DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", UI_Thin);
+	}
+	else
+	{
+		//if (UI_Timer >= 0)
+		//	//DrawGraph(0, 0, UI_Timer, TRUE);
+		//	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+
+	SetFontSize(UI_SlightlyThin);
+	if (!isMap5Start)
+	{
+		if (UI_SlightlyThin >= 0) DrawGraph(0, 0, UI_SlightlyThin, TRUE);
+		//DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", UI_SlightlyThin );
+	}
+	else
+	{
+		//if (UI_Timer >= 0)
+		//	//DrawGraph(0, 0, UI_Timer, TRUE);
+		//	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+	SetFontSize(UI_Normal);
+	if (!isMap5Start)
+	{
+		if (UI_Normal >= 0) DrawGraph(0, 0, UI_Normal, TRUE);
+		//DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", playerLives);
+	}
+	else
+	{
+		//if (UI_Timer >= 0)
+		//	//DrawGraph(0, 0, UI_Timer, TRUE);
+		//	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
+	SetFontSize(UI_SlightlyFat);
+	if (!isMap5Start)
+	{
+		if (UI_SlightlyFat >= 0) DrawGraph(0, 0, UI_SlightlyFat, TRUE);
+		//DrawFormatString(x_c, y_c, ColorConfig::White, "×%d", playerLives);
+	}
+	else
+	{
+		//if (UI_Timer >= 0)
+		//	//DrawGraph(0, 0, UI_Timer, TRUE);
+		//	DrawFormatString(x_b, y_b, ColorConfig::White, " %d", (int)(spTimeRemain_ + 0.999f));
+	}
+
 
 	// ===== 最前面：BonusStart（イントロ中のみ）=====
 	if (spIntroActive_) {

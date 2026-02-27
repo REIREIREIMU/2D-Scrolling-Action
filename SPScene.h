@@ -6,9 +6,10 @@
 #include "Config.h" // ColorConfig / ClearConfig を使います
 
 // 表示・進行設定（SP 専用）
-namespace SPConfig {
+namespace SPConfig 
+{
     constexpr int WAIT_FRAMES = 60;   // 入力受付開始まで（約1秒）
-    constexpr int SHOW_DURATION_FRAMES = 600;  // 自動遷移: 約10秒（60fps想定）
+    constexpr int SHOW_DURATION_FRAMES = 200;  // 自動遷移: 約10秒（60fps想定）
 }
 
 class SPScene : public SceneBase

@@ -42,6 +42,8 @@ private:
 	int carryOverTimeSec = -1;// タイムボーナス計算用の残り時間（秒単位）
 	int carryOverScore = -1;// タイムボーナス計算用のスコア（必要なら）
 
+
+
 	int	 sceneID      = -1;
 	int  CurrentStage =  1;   // 現在のステージ番号を追加 (1,2,3など)
 	int  PlayerLives  = SceneFlowConfig::START_LIVES;

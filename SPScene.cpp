@@ -16,12 +16,13 @@ void SPScene::Init()
 
     // 今回は「獲得した SPScore をそのまま見せる」仕様なのでアニメはしない
     displayScore = SPscore_;
+
 }
 
 void SPScene::Update()
 {
 
-	waitTimer_++;
+    waitTimer_++;
 
     // 入力受付までの待機
     if (waitTimer_ > SPConfig::WAIT_FRAMES && Input::IsDecide()) {

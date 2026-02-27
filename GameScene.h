@@ -12,6 +12,7 @@
 namespace GameConfig {
 	const int   UI_FONT_SCORE = 70;	 // スコアUIのサイズ
 	const int   UI_FONT_TIMER = 50;  // タイムUIのサイズ
+	const int   UI_Player_Lives = 50; // 残機UIのサイズ
 
 	const float AUTO_WAIT_TIME = 2.0f;   // 一定時間
 	const float TIME_LIMIT_SEC = 300.0f; // 制限時間(5分)
@@ -101,9 +102,11 @@ private:
 	int blockImages[(int)BlockType::Question + 1];
 	int	goalBlockImage = -1; // ゴールブロック画像用
 	int	ladderBlockImage = -1; // はしごブロック画像用
-	
-	
-
+	const int Image = -1, Sound = -1;
+	int UI_Thin = Image;	//Thinの画像
+	int UI_SlightlyThin = Image;	//SlightlyThin画像
+	int UI_Normal = Image;	//Normalの画像
+	int UI_SlightlyFat = Image;	//SlightlyFatの画像
 	// レンガ破片画像(2つ)
 	std::array<int, 2> brickPieceImages = { -1, -1 };
 	int backgroundImage = -1; // 背景画像用
