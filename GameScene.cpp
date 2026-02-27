@@ -173,7 +173,7 @@ void GameScene::Init() {
 	//SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
 	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
-	NotFrool_Image = LoadGraph("image/NotFool.png");
+	NotFrool_Image = LoadGraph("image/BonusStart.png");
 
 	//player.SetBlockImages(blockImages);
 
@@ -328,11 +328,6 @@ void GameScene::Update()
 	}
 
 
-	
-
-
-
-
 	Update(deltaTimeForUpdate);
 
 	for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
@@ -380,27 +375,7 @@ void GameScene::Update()
 		}
 	}
 
-	for (const auto & trigger : fallPointTriggers)//Hから触れた処理を受け取ったとき
-	{
-
-		if (player.GetRect().Intersects(trigger) && fat == FatState::Fat3 || fat == FatState::Fat4)
-			//プレイヤーの当たり判定とHの位置が重なったとき、かつ体型が3か4のとき
-		{
-			//何もなし
-		}
-		else
-		{
-			DrawFormatString(x_a, y_a, ColorConfig::Black, "NotFool");
-			LoadGraph("image/NotFool.png");//画像を表示する
-		}
-
-
-	}
-
 	
-
-	
-
 	for (const auto& trigger : UpTriggers)//Uから触れた処理を受け取ったとき
 	{
 		
@@ -428,11 +403,35 @@ void GameScene::Update()
 			StopSoundMem(Main_Bgm);
 			endFlag = true;
 			nextSceneID = (int)SceneState::SP_Scene;
+			return;
 		}
 		
 
 
-		return;
+		
+	}
+
+	showNotFool_ = false; // 毎フレーム初期化（デフォルト非表示）
+
+	{
+		const FatState fat = player.GetFatState();
+		const bool isEnough = (fat == FatState::Fat3 || fat == FatState::Fat4);
+
+		// 足元の薄い帯で接触を判定
+		Rect playerRect = player.GetRect();
+		Rect footRect = playerRect;
+		footRect.y += playerRect.h - 1; // ボトムに沿わせる
+		footRect.h = 2;                 // 2px 程度の薄い帯
+
+		for (const auto& trigger : fallPointTriggers) 
+		{
+			if (footRect.Intersects(trigger)) 
+			{
+				// Fat3/Fat4は非表示、それ以外は表示
+				showNotFool_ = !isEnough;
+				break;
+			}
+		}
 	}
 
 
@@ -632,6 +631,9 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		Rect footRect    = playerRect;		// プレイヤーの頭位置の矩形
 		     footRect.y += playerRect.h;	// 足元をわずかに下にオフセット
 		     footRect.h  = Foot_R_h;	    // 足の高さ（ヒット判定用）
+
+
+		
 
 		if (FallBlock && block.GetType() == BlockType::FallBrick)
 		{
@@ -903,7 +905,9 @@ void GameScene::Draw()
 		DrawGraph(0, 0, bonusBackGroundImg, TRUE);
 	}
 
+
 	
+
 
 
 
@@ -1163,6 +1167,23 @@ void GameScene::Draw()
 			int ty = (GlobalConfig::SCREEN_HEIGHT - 72) / 2;
 			DrawString(tx, ty, msg, GetColor(255, 255, 0));
 			SetFontSize(GameConfig::FONT_SIZE);
+		}
+	}
+
+
+	if (showNotFool_) {
+		if (NotFrool_Image >= 0) {
+			int w = 0, h = 0;
+			GetGraphSize(NotFrool_Image, &w, &h);
+			// 画面中央やお好みの位置に
+			const int cx = (GlobalConfig::SCREEN_WIDTH - w) / 2;
+			const int cy = (GlobalConfig::SCREEN_HEIGHT - h) / 3;
+			DrawGraph(cx, cy, NotFrool_Image, TRUE);
+		}
+		else {
+			// 画像が無い場合のフォールバック
+			SetFontSize(48);
+			DrawFormatString(120, 60, ColorConfig::Black, "NotFool");
 		}
 	}
 

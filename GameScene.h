@@ -111,7 +111,10 @@ private:
 	int SPUI_Image = -1;// SPUI用の画像
 
 	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）[
+	
+	
 	int NotFrool_Image = -1; //SPステージに移動できないとき
+	bool showNotFool_ = false;
 
 	bool spIntroActive_ = false; // BonusStart 中フラグ
 	float spIntroRemain_ = 0.0f;  // 残り秒数
@@ -204,6 +207,8 @@ private:
 	bool isMap5Clear = false;
 
 
+	
+	
 	// 復元待ちの通常タイマー（SceneManager → GameScene）
 	int carryOverTimePending_ = -1;
 

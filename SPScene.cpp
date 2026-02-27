@@ -21,7 +21,7 @@ void SPScene::Init()
 void SPScene::Update()
 {
 
-    
+	waitTimer_++;
 
     // “ü—ÍŽó•t‚Ü‚Å‚Ì‘Ò‹@
     if (waitTimer_ > SPConfig::WAIT_FRAMES && Input::IsDecide()) {
