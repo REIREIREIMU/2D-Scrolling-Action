@@ -11,6 +11,7 @@ void SPScene::Init()
     waitTimer_ = 0;
 
     // 背景画像（存在しなくても致命ではないため、ロード失敗は無視）
+
     ClearImage = LoadGraph("image/BonusClear.png");      // キーボード用
     Clear_XboxImage = LoadGraph("image/BonusClear_Xbox.png"); // コントローラー用
 
@@ -102,7 +103,5 @@ bool SPScene::IsEnd()
 int SPScene::NextScene()
 {
     // ここではゲーム本編に戻す（== ステージ1の初期位置復帰は SceneManager 側で対応）
-    // 例：SceneManager に ResetToStage(1) や SetStage(1) があるなら、
-    //     遷移前または遷移直後に呼び出してください。
     return (int)SceneState::Game_Scene;
 }

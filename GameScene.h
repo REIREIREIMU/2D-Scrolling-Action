@@ -103,10 +103,10 @@ private:
 	int	goalBlockImage = -1; // ゴールブロック画像用
 	int	ladderBlockImage = -1; // はしごブロック画像用
 	const int Image = -1, Sound = -1;
-	int UI_Thin = Image;	//Thinの画像
-	int UI_SlightlyThin = Image;	//SlightlyThin画像
-	int UI_Normal = Image;	//Normalの画像
-	int UI_SlightlyFat = Image;	//SlightlyFatの画像
+	int UI_Thin = -1;	//Thinの画像
+	int UI_SlightlyThin = -1;	//SlightlyThin画像
+	int UI_Normal = -1;	//Normalの画像
+	int UI_SlightlyFat = -1;	//SlightlyFatの画像
 	// レンガ破片画像(2つ)
 	std::array<int, 2> brickPieceImages = { -1, -1 };
 	int backgroundImage = -1; // 背景画像用

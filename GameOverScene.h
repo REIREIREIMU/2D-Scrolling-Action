@@ -15,7 +15,7 @@ private:
 	int GameOverSound	   = -1; // ゲームオーバーのSE
 
 	int waitTimer_   = 0;    // 入力受付の待機タイマー（フレーム単位）
-	int soundvolume_ = 100;  //サウンドの音量
+	int soundvolume_ = 0;  //サウンドの音量
 
 	bool controllerConnected = false;  // コントローラー接続フラグ
 
