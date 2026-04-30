@@ -7,6 +7,12 @@ void MapData::LoadFromString(const std::vector<std::string>& mapLines, const int
     rawMap = mapLines;
     blocks.clear(); items.clear(); enemies.clear();  // ブロック、アイテム、敵 等の一覧をクリア
 
+    fallPointTriggers.clear();
+    fallTriggers.clear();
+    UpTriggers.clear();
+    returnPoint = { 0, 0, 0, 0 };
+
+
     for (int y = 0; y < mapLines.size(); ++y) {
         for (int x = 0; x < mapLines[y].size(); ++x) {
             char ch = mapLines[y][x];

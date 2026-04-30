@@ -43,6 +43,10 @@ bool GameOverScene::IsEnd() {
 	return endFlag;
 }
 
-int GameOverScene::NextScene() {
+int GameOverScene::NextScene() 
+{
+
+	SceneManager::SetBonusClear(false); // ゲームオーバーでも再スタートする原因
 	return (int)SceneState::Title_Scene; // タイトル画面のIDを渡す
+	//SceneManager::SetBonusClear(false); // ★これ
 }

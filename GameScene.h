@@ -112,8 +112,11 @@ private:
 	int backgroundImage = -1; // 背景画像用
 	int bonusBackGroundImg = -1;//ボーナス画面背景用
 	int SPUI_Image = -1;// SPUI用の画像
-
+	int Warning_Sound = -1;
 	int  SP_BonusStart_Image = -1;    // "image/BonusStart.png"（画像が無ければテキスト表示）[
+
+	int UI_WARNING;
+	int UI_WARNING_BD;
 
 	// H→L を短時間だけ許可する武装ウィンドウ
 	bool  spEntryArmed_ = false;
@@ -127,8 +130,11 @@ private:
 	bool spIntroActive_ = false; // BonusStart 中フラグ
 	float spIntroRemain_ = 0.0f;  // 残り秒数
 	static constexpr float SP_INTRO_SEC = 2.0f; // 表示時間（例：2秒）
+	int lastLoadedStageNo_ = -1;
+	
 
-
+	bool showThinWarning_ = false;
+	bool wasThinWarning_ = false;
 
 
 	// 死亡時のエフェクトの処理

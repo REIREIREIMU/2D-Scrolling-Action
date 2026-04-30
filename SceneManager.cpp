@@ -15,7 +15,7 @@ int SceneManager::SPBonus = 0;
 int SceneManager::itemCount = 0;
 bool SceneManager::isBonusClear = false;
 //int SceneManager::itemBonus   = 0;
-
+int SceneManager::currentStageNo = 1;
 
 namespace 
 {
@@ -160,6 +160,23 @@ void SceneManager::Update(float deltaTime) {
 		}
 		ChangeScene(next);
 	}
+}
+
+
+
+
+
+
+
+
+void SceneManager::SetStage(int stage)
+{
+	currentStageNo = stage;
+}
+
+int SceneManager::GetStage()
+{
+	return currentStageNo;
 }
 
 void SceneManager::Draw() {

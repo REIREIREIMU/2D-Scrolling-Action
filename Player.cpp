@@ -43,8 +43,8 @@ void Player::Init(const Rect & start) {
 	UI_Fat4 = LoadGraph("image/Fat4.png");			//Fat4の画像
 
 	//警告用
-	UI_WARNING_BD = LoadGraph("image/WARNING.png");
-	UI_WARNING = LoadGraph("image/Danger.png");
+	//UI_WARNING_BD = LoadGraph("image/WARNING.png");
+	//UI_WARNING = LoadGraph("image/Danger.png");
 
 	//ジャンプの効果音
 	Jump_Sound = LoadSoundMem("sound/Jumping.mp3");

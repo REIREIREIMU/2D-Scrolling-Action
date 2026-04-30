@@ -139,14 +139,16 @@ void GameScene::Init() {
 	PlaySoundMem(Main_Bgm, DX_PLAYTYPE_LOOP);
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
-	if (!isMap5Clear)
-	{
-		StageSet(map.playerStart);
-	}
-	else
+
+	if (stageNo == 1 && isMap5Clear)
 	{
 		StageSet(map.returnPoint);
 	}
+	else
+	{
+		StageSet(map.playerStart);
+	}
+
 	
 	enemyImages =       // 敵の描画ファイルの読み込み
 	{ 
@@ -174,7 +176,7 @@ void GameScene::Init() {
 	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
 	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
 	NotFrool_Image = LoadGraph("image/NotFrool.png");
-
+	Warning_Sound = LoadSoundMem("sound/Warning.mp3");
 	//player.SetBlockImages(blockImages);
 
 	// 死亡演出（爆発スプライト）
@@ -212,7 +214,8 @@ void GameScene::Init() {
 	UI_Score_SP = -1;										// 「SPScore」ラベル画像用
 	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
 	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
-
+	UI_WARNING_BD = LoadGraph("image/WARNING.png");
+	UI_WARNING = LoadGraph("image/Danger.png");
 
 	UI_Thin = LoadGraph("image/Thin.png");			//Thinの画像
 	UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");	//SlightlyThin画像
@@ -231,29 +234,6 @@ void GameScene::Init() {
 
 void GameScene::StageSet(const Rect &position)
 {
-
-
-	// ★ 進級/新規開始のときだけ、スコア系とタイムを初期化（SP:5 は除外）
-	{
-		const ResetReason r = SceneManager::ConsumeResetReason();
-		if ((r == ResetReason::StageAdvance || r == ResetReason::NewGame) && stageNo != 5)
-		{
-			// --- Score 系を 0 へ ---
-			score = 0;
-			SPscore = 0;          // SP 用を合算しない運用なら 0 に
-			SPitemGetCount = 0;
-
-			// --- タイム系を初期値へ ---
-			// 秒ベース
-			timeLimit = GameConfig::TIME_LIMIT_SEC;      // ← 既定（ヘッダで 300.0f）
-			// フレーム残（60FPS想定。プロジェクトに合わせて調整）
-			timeLimitTotalFrames_ = 60 * 300;          // 例：300 秒
-			timeLimitRemainFrames_ = timeLimitTotalFrames_;
-
-			// carryOver の取り消し（SP から戻る時にだけ使う想定の保険）
-			carryOverTimePending_ = -1;
-		}
-	}
 
 
 	const char* stageMap = nullptr;//ファイルパス用
@@ -275,7 +255,33 @@ void GameScene::StageSet(const Rect &position)
 
 
 	//対応したマップ読み込み
-	map.LoadMapFromCsv(stageMap, blockImages);
+
+
+	if (lastLoadedStageNo_ != stageNo)
+	{
+		const char* stageMap = nullptr;
+
+		if (stageNo == 1) stageMap = "map/mapData1.csv";
+		else if (stageNo == 2) stageMap = "map/mapData2.csv";
+		else if (stageNo == 3) stageMap = "map/mapData3.csv";
+		else if (stageNo == 5) stageMap = "map/mapDataSP.csv";
+
+		map.LoadMapFromCsv(stageMap, blockImages);
+
+		blocks = map.blocks;
+		items = map.items;
+		enemies = map.enemies;
+
+		itemCollected = std::vector<bool>(items.size(), false);
+
+		fallPointTriggers = map.fallPointTriggers;
+		fallTriggers = map.fallTriggers;
+		UpTriggers = map.UpTriggers;
+
+		lastLoadedStageNo_ = stageNo;
+	}
+
+
 
 	// ブロック配置（プレイヤーより先）
 	{
@@ -308,7 +314,9 @@ void GameScene::StageSet(const Rect &position)
 
 void GameScene::SetDeltaTime(float dt) 
 {
+	
 	deltaTimeForUpdate = dt;
+
 }
 
 
@@ -316,6 +324,8 @@ void GameScene::SetDeltaTime(float dt)
 // SceneBase から呼ばれる Update（引数なし）
 void GameScene::Update()
 {
+	Update(deltaTimeForUpdate);
+	
 	//経過時間を進める（SceneManager->SetDeltaTime で受け取った dt が入っている前提）
 	elapsedSec += deltaTimeForUpdate;
 
@@ -376,7 +386,7 @@ void GameScene::Update()
 			}
 		}
 
-		Update(deltaTimeForUpdate);
+	
 
 		for (const auto& trigger : fallTriggers)//Lから触れた処理を受け取ったとき
 		{
@@ -607,6 +617,52 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	// プレイヤーの更新
 	player.Update(blocks, deltaTime);
 
+
+
+	if (!isMap5Start) // ★ステージ5では処理しない
+	{
+		// ===== 瘦せ警告（点滅＋音トリガー）=====
+
+		// Thin or SlightlyThin 判定
+		bool isThin = (player.GetFatState() == FatState::Thin ||
+			player.GetFatState() == FatState::SlightlyThin);
+
+		showThinWarning_ = isThin;
+
+		// 点滅処理
+		static float warningTimer = 0.0f;
+		warningTimer += (float)deltaTime;
+
+		// 点滅切り替え
+		bool blink = ((int)(warningTimer / PlayerConfig::THIN_BLINK_INT) % 2) == 0;
+
+		if (!blink) showThinWarning_ = false;
+
+		// 音（変化時だけ）
+		if (isThin && !wasThinWarning_)
+		{
+			PlaySoundMem(Warning_Sound, DX_PLAYTYPE_BACK);
+		}
+		else if (!isThin && wasThinWarning_)
+		{
+			StopSoundMem(Warning_Sound);
+		}
+
+		wasThinWarning_ = isThin;
+	}
+	else
+	{
+		// ★ステージ5に入った瞬間にリセット（重要）
+		if (wasThinWarning_)
+		{
+			StopSoundMem(Warning_Sound);
+		}
+
+		showThinWarning_ = false;
+		wasThinWarning_ = false;
+	}
+
+
 	// プレイヤーの矩形を取得（敵に渡す）
 	Rect playerRect = player.GetRect();
 
@@ -642,6 +698,10 @@ void GameScene::Update(/*float*/ double deltaTime) {
 				nextSceneID = (int)SceneState::Ready_Scene;     // 準備画面 に遷移
 			}
 			else {						  // 残機がない場合
+
+				isMap5Clear = false;   // ← ★これ追加
+				isMap5Start = false;
+
 				nextSceneID = (int)SceneState::GameOver_Scene;  // ゲームオーバー に遷移		
 			}
 			endFlag = true;
@@ -1243,6 +1303,7 @@ void GameScene::Draw()
 	if (showNotFool_) {
 		if (NotFrool_Image >= 0) {
 			int w = 0, h = 0;
+
 			GetGraphSize(NotFrool_Image, &w, &h);
 			const int cx = (GlobalConfig::SCREEN_WIDTH - w) / 2;
 			const int cy = (GlobalConfig::SCREEN_HEIGHT - h) / 3;
@@ -1254,6 +1315,15 @@ void GameScene::Draw()
 			DrawFormatString(120, 60, ColorConfig::Black, "NotFool");
 		}
 	}
+
+
+	// ★一番最後に追加
+	if (showThinWarning_)
+	{
+		DrawGraph(0, 0, UI_WARNING_BD, TRUE);
+		DrawGraph(0, 0, UI_WARNING, TRUE);
+	}
+
 
 }
 

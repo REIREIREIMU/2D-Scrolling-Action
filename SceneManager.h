@@ -18,6 +18,7 @@ namespace SceneFlowConfig {
 
 
 
+
 // 各シーンのステータスを定義
 enum class SceneState {
 	Title_Scene,     // 0: タイトル画面
@@ -41,7 +42,7 @@ private:
 	//static int itemBonus;	  // アイテムボーナス
 	int carryOverTimeSec = -1;// タイムボーナス計算用の残り時間（秒単位）
 	int carryOverScore = -1;// タイムボーナス計算用のスコア（必要なら）
-
+	static int currentStageNo;
 
 
 	int	 sceneID      = -1;
@@ -51,6 +52,9 @@ private:
 public:
 	SceneManager();
 	~SceneManager();
+
+	static void SetStage(int stage);
+	static int GetStage();
 
 	void ChangeScene(int id);
 	void Update(float deltaTime);
