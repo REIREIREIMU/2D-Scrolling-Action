@@ -107,39 +107,100 @@ extern const std::vector<std::string> mapText_stage3 = {
 	//0   P     1         2         3         4         5         6         7         8         9         A         B         C         D         E         F        10        11        12        13        14        15        16        17        18        19        1A        1B        1C        1D        1E        1F
 };
 
+
 void GameScene::Init() {
-	// ブロック画像の読み込み
-	blockImages[(int)BlockType::GroundA]        = LoadGraph("image/GroundA.png");
-	blockImages[(int)BlockType::GroundB]        = LoadGraph("image/GroundB.png");
-	blockImages[(int)BlockType::GroundC]		= LoadGraph("image/GroundC.png");
-	blockImages[(int)BlockType::Brick]          = LoadGraph("image/Block.png");
-	blockImages[(int)BlockType::Question]       = LoadGraph("image/Question_Block_1.png");
-	blockImages[(int)BlockType::Question_Empty] = LoadGraph("image/Question_Empty.png");
-	blockImages[(int)BlockType::Goal]			= LoadGraph("image/Goal.png");
-	blockImages[(int)BlockType::Ladder]			= LoadGraph("image/Ladder.png");
-	blockImages[(int)BlockType::FallBrick]		= LoadGraph("image/Fall_Brick.png");
 
-	// ？ブロック用は3枚の連番画像を読み込む
-	int questionImgs[3] = {
-		LoadGraph("image/Question_Block_1.png"),
-		LoadGraph("image/Question_Block_2.png"),
-		LoadGraph("image/Question_Block_3.png")
-	};
-	Block::SetQuestionBlockImages(questionImgs, 3);
+	static bool isLoaded = false;
 
-	// サウンドの読み込み
-	Eat_Sound		 = LoadSoundMem("sound/Eat.mp3");
-	BreakBrick_Sound = LoadSoundMem("sound/BreakBrick.mp3");
-	Activate_Sound	 = LoadSoundMem("sound/Activate.mp3");
-	Kill_Sound_1	 = LoadSoundMem("sound/collapse.mp3");
-	Kill_Sound_2	 = LoadSoundMem("sound/collapse.mp3");
-	Main_Bgm		 = LoadSoundMem("sound/MainBGM.mp3");
+	// ★ここだけ追加！！（一度だけロード）
+	if (!isLoaded)
+	{
+		// ブロック画像の読み込み
+		blockImages[(int)BlockType::GroundA] = LoadGraph("image/GroundA.png");
+		blockImages[(int)BlockType::GroundB] = LoadGraph("image/GroundB.png");
+		blockImages[(int)BlockType::GroundC] = LoadGraph("image/GroundC.png");
+		blockImages[(int)BlockType::Brick] = LoadGraph("image/Block.png");
+		blockImages[(int)BlockType::Question] = LoadGraph("image/Question_Block_1.png");
+		blockImages[(int)BlockType::Question_Empty] = LoadGraph("image/Question_Empty.png");
+		blockImages[(int)BlockType::Goal] = LoadGraph("image/Goal.png");
+		blockImages[(int)BlockType::Ladder] = LoadGraph("image/Ladder.png");
+		blockImages[(int)BlockType::FallBrick] = LoadGraph("image/Fall_Brick.png");
 
-	// BGMを再生
+		// ？ブロック（※これも1回だけ）
+		static int questionImgs[3];
+		questionImgs[0] = LoadGraph("image/Question_Block_1.png");
+		questionImgs[1] = LoadGraph("image/Question_Block_2.png");
+		questionImgs[2] = LoadGraph("image/Question_Block_3.png");
+		Block::SetQuestionBlockImages(questionImgs, 3);
+
+		// サウンド
+		Eat_Sound = LoadSoundMem("sound/Eat.mp3");
+		BreakBrick_Sound = LoadSoundMem("sound/BreakBrick.mp3");
+		Activate_Sound = LoadSoundMem("sound/Activate.mp3");
+		Kill_Sound_1 = LoadSoundMem("sound/collapse.mp3");
+		Kill_Sound_2 = LoadSoundMem("sound/collapse.mp3");
+		Main_Bgm = LoadSoundMem("sound/MainBGM.mp3");
+
+		Warning_Sound = LoadSoundMem("sound/Warning.mp3");
+		Death_Sound = LoadSoundMem("sound/Explosion.mp3");
+
+		// 敵画像
+		enemyImages = {
+			LoadGraph("image/Enemy1_Walk_L.png"),
+			LoadGraph("image/Enemy1_Walk_R.png"),
+			LoadGraph("image/Enemy2_Walk_L.png"),
+			LoadGraph("image/Enemy2_Walk_R.png"),
+			LoadGraph("image/Enemy3_Normal.png"),
+			LoadGraph("image/Enemy3_Ready.png"),
+			LoadGraph("image/Enemy3_Attack.png"),
+			LoadGraph("image/Enemy4.png")
+		};
+
+		// アイテム
+		itemImages = {
+			LoadGraph("image/Food1.png"),
+			LoadGraph("image/Food2.png"),
+			LoadGraph("image/Food3.png"),
+			LoadGraph("image/Food4.png"),
+			LoadGraph("image/Food5.png")
+		};
+
+		// UI
+		UI_Score = LoadGraph("image/Score.png");
+		UI_Timer = LoadGraph("image/Timer.png");
+		UI_Player_Lives = LoadGraph("image/Player_Lives.png");
+
+		UI_WARNING_BD = LoadGraph("image/WARNING.png");
+		UI_WARNING = LoadGraph("image/Danger.png");
+
+		UI_Thin = LoadGraph("image/Thin.png");
+		UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");
+		UI_Normal = LoadGraph("image/Normal.png");
+		UI_SlightlyFat = LoadGraph("image/SlightlyFat.png");
+
+		// 背景
+		backgroundImage = LoadGraph("image/NewBackGround.png");
+		SPUI_Image = LoadGraph("image/SP_UI.png");
+		bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
+		SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
+		NotFrool_Image = LoadGraph("image/NotFrool.png");
+
+		// 爆発
+		deathEffectImg = LoadGraph("image/Explosion.png");
+
+		int imgW, imgH;
+		GetGraphSize(deathEffectImg, &imgW, &imgH);
+		deathEffectFrameW = imgW / GameConfig::DEATH_COLS;
+		deathEffectFrameH = imgH / GameConfig::DEATH_ROWS;
+
+		isLoaded = true;
+	}
+
+	// ★BGMは毎回再生OK
 	PlaySoundMem(Main_Bgm, DX_PLAYTYPE_LOOP);
 	ChangeVolumeSoundMem(soundvolume_, Main_Bgm);
 
-
+	// ★ステージは毎回初期化OK
 	if (stageNo == 1 && isMap5Clear)
 	{
 		StageSet(map.returnPoint);
@@ -149,88 +210,14 @@ void GameScene::Init() {
 		StageSet(map.playerStart);
 	}
 
-	
-	enemyImages =       // 敵の描画ファイルの読み込み
-	{ 
-		 LoadGraph("image/Enemy1_Walk_L.png"),
-		 LoadGraph("image/Enemy1_Walk_R.png"),
-		 LoadGraph("image/Enemy2_Walk_L.png"),
-		 LoadGraph("image/Enemy2_Walk_R.png"),
-		 LoadGraph("image/Enemy3_Normal.png"),
-		 LoadGraph("image/Enemy3_Ready.png"),
-		 LoadGraph("image/Enemy3_Attack.png"),
-		 LoadGraph("image/Enemy4.png")
-	};
-
-	itemImages = {       // アイテムがの描画ファイルの読み込み
-	   LoadGraph("image/Food1.png"),
-	   LoadGraph("image/Food2.png"),
-	   LoadGraph("image/Food3.png"),
-	   LoadGraph("image/Food4.png"),
-	   LoadGraph("image/Food5.png")
-	};
-
-	// ステージの描画ファイルの読み込み
-	backgroundImage = LoadGraph("image/NewBackGround.png");
-	SPUI_Image = LoadGraph("image/SP_UI.png");            // SP スコア表示用の UI 画像（必要なら）
-	bonusBackGroundImg = LoadGraph("image/BonusBackGround.png");
-	SP_BonusStart_Image = LoadGraph("image/BonusStart.png");
-	NotFrool_Image = LoadGraph("image/NotFrool.png");
-	Warning_Sound = LoadSoundMem("sound/Warning.mp3");
-	//player.SetBlockImages(blockImages);
-
-	// 死亡演出（爆発スプライト）
-	deathEffectImg = LoadGraph("image/Explosion.png");// 爆発画像1枚 or アニメシート
-	
-	// 爆発スプライトのコマサイズを取得
-	int imgW, imgH;
-	GetGraphSize(deathEffectImg, &imgW, &imgH);
-	deathEffectCols = GameConfig::DEATH_COLS;    // 横3コマ
-	deathEffectRows = GameConfig::DEATH_ROWS;    // 縦4コマ
-	deathEffectFrameW = imgW / deathEffectCols;
-	deathEffectFrameH = imgH / deathEffectRows;
-
-	// 死亡音
-	Death_Sound = LoadSoundMem("sound/Explosion.mp3");
-	
-	// 敵ごとにアニメ画像設定
-	for (auto& enemy : enemies) {
-		if (enemy.type == 0) {
-			enemy.SetAnimImages({ enemyImages[0], enemyImages[1] });  // Enemy1
-		}
-		else if (enemy.type == 1) {
-			enemy.SetAnimImages({ enemyImages[2], enemyImages[3] });  // Enemy2
-		}
-		else if (enemy.type == 2) {
-			// type 2 は個別画像をセット
-			enemy.enemy3NormalImg_ = enemyImages[4];  // Enemy3_Normal.png
-			enemy.enemy3ReadyImg_  = enemyImages[5];  // Enemy3_Ready.png
-			enemy.enemy3AttackImg_ = enemyImages[6];  // Enemy3_Attack.png
-		}
-	}
-
-	//UI関係
-	UI_Score		= LoadGraph("image/Score.png");		    //スコアの画像
-	UI_Score_SP = -1;										// 「SPScore」ラベル画像用
-	UI_Timer		= LoadGraph("image/Timer.png");		    //タイマーの画像
-	UI_Player_Lives = LoadGraph("image/Player_Lives.png");	//残機表示の画像
-	UI_WARNING_BD = LoadGraph("image/WARNING.png");
-	UI_WARNING = LoadGraph("image/Danger.png");
-
-	UI_Thin = LoadGraph("image/Thin.png");			//Thinの画像
-	UI_SlightlyThin = LoadGraph("image/SlightlyThin.png");	//SlightlyThin画像
-	UI_Normal = LoadGraph("image/Normal.png");		//Normalの画像
-	UI_SlightlyFat = LoadGraph("image/SlightlyFat.png");	//SlightlyFatの画像
-	
-	// --- 通常タイマー復元（SceneManager → carryOver がある時だけ上書き）---
-	if (carryOverTimePending_ >= 0) 
+	// ★タイマー復元（そのままでOK）
+	if (carryOverTimePending_ >= 0)
 	{
 		timeLimit = (double)carryOverTimePending_;
 		carryOverTimePending_ = -1;
 	}
-
-
 }
+
 
 void GameScene::StageSet(const Rect &position)
 {
@@ -830,8 +817,22 @@ void GameScene::Update(/*float*/ double deltaTime) {
 	}
 
 	// アイテム取得処理
-	for (size_t i = 0; i < items.size(); ++i) {
-		if (!itemCollected[i] && CheckCollision(playerRect, items[i].rect)) {
+	for (size_t i = 0; i < items.size(); ++i) 
+	{
+		
+		
+		if (!itemCollected[i] && CheckCollision(playerRect, items[i].rect)) 
+		{
+
+			if (!itemCollected[i]) 
+			{
+				const auto& item = items[i];
+
+
+			}
+
+
+
 			if (!isMap5Start)
 			{
 				itemCollected[i] = true;
@@ -845,6 +846,9 @@ void GameScene::Update(/*float*/ double deltaTime) {
 				SPscore += GameConfig::ITEM_SCORE; // ボーナススコア加算
 				SPitemGetCount++;
 			}
+
+			
+
 			//取得効果音を再生
 			PlaySoundMem(Eat_Sound, DX_PLAYTYPE_BACK);
 			ChangeVolumeSoundMem(soundvolume_, Eat_Sound);
@@ -1062,19 +1066,34 @@ void GameScene::Draw()
 			enemy.rect.y + enemy.rect.h > 0 &&
 			enemy.rect.y < GlobalConfig::SCREEN_HEIGHT;
 		if (!isOnScreen && enemy.type != 2) continue;
-		enemy.Draw(scrollX, enemyImages[enemy.type]);
+
+		if (enemy.type >= 0 && enemy.type < enemyImages.size())
+		{
+			enemy.Draw(scrollX, enemyImages[enemy.type]);
+		}
+
 	}
 
 	// ブロック描画
 	for (const auto& block : blocks) { block.Draw(scrollX); }
 
 	// アイテム描画
-	for (size_t i = 0; i < items.size(); ++i) {
-		if (!itemCollected[i]) {
+	for (size_t i = 0; i < items.size(); ++i) 
+	{
+		if (i >= itemCollected.size()) break; // ★これ追加
+
+		if (!itemCollected[i]) 
+		{
 			const auto& item = items[i];
-			DrawExtendGraph( item.rect.x - scrollX, item.rect.y,
-							 item.rect.x + item.rect.w - scrollX, item.rect.y + item.rect.h,
-							 itemImages[item.type], TRUE);
+
+			if (item.type >= 0 && item.type < itemImages.size()) // ★これも追加
+			{
+				DrawExtendGraph(
+					item.rect.x - scrollX, item.rect.y,
+					item.rect.x + item.rect.w - scrollX, item.rect.y + item.rect.h,
+					itemImages[item.type], TRUE);
+			}
+
 		}
 	}
 
