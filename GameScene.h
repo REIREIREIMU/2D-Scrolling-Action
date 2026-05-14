@@ -57,7 +57,7 @@ public:
 
 	void SetBonusClear(bool clear) { isMap5Clear = clear; }
 
-
+	void ReleaseResources();
 
 	// SceneManager 退避用 Getter（残り時間 秒）
 	double GetTimeLimitSec() const { return timeLimit; }
@@ -99,7 +99,7 @@ private:
 
 	//ブロック画像
 	//ブロックに当たり判定がない場合はここに画像を置く
-	int blockImages[(int)BlockType::Question + 1];
+	int blockImages[(int)BlockType::Max];
 	int	goalBlockImage = -1; // ゴールブロック画像用
 	int	ladderBlockImage = -1; // はしごブロック画像用
 	const int Image = -1, Sound = -1;

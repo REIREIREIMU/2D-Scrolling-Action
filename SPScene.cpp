@@ -61,6 +61,8 @@ void SPScene::Draw()
         DrawGraph(0, 0, ClearImage, TRUE);
     }
 
+
+
     // フォントサイズは ClearScene に合わせる（Config に依存）
     SetFontSize(GlobalConfig::FONT_SIZE);
 

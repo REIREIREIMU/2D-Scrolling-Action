@@ -20,7 +20,8 @@ namespace BlockConfig {
 }
 
 // ブロックの種類
-enum class BlockType {
+enum class BlockType 
+{
 	None,			// 完全に消えた状態
 	GroundA,		// 地面ブロックA
 	GroundB,		// 地面ブロックB
@@ -30,7 +31,8 @@ enum class BlockType {
 	Question_Empty, // ？ブロック(空)
 	FallBrick,      // 落下レンガブロック
 	Goal,            // ゴールブロック
-	Ladder         // はしごブロック
+	Ladder,         // はしごブロック
+	Max
 };
 
 // レンガ破片(演習用)
