@@ -75,7 +75,7 @@ void Enemy::Update(const std::vector<Block>& blocks, std::vector<Enemy>& enemies
 			vx = -vx;                       // 方向を反転
 			isFacingRight = (vx < 0);       // 画像も反転
 			reversed = true;	
-			break;		// 反転だけして抜ける(returnにしないと反転がバグる)
+			return;		// 反転だけして抜ける(returnにしないと反転がバグる)
 		}
 	}
 

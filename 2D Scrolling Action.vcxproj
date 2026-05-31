@@ -144,13 +144,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\kiria\Desktop\OneDrive - 東北電子専門学校\GE3A\ゲームアワード\プロジェクトに追加すべきファイル_VC用;C:\Users\240160\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\Users\Rihit\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\DxLibVCTest\DxLibVCTest</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\kiria\Desktop\OneDrive - 東北電子専門学校\GE3A\ゲームアワード\プロジェクトに追加すべきファイル_VC用;C:\Users\240160\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\Users\Rihit\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\PG\2D-Scrolling-Action\プロジェクトに追加すべきファイル_VC用</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\kiria\Desktop\OneDrive - 東北電子専門学校\GE3A\ゲームアワード\プロジェクトに追加すべきファイル_VC用;C:\Users\240160\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\Users\Rihit\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\DxLibVCTest\DxLibVCTest</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\kiria\Desktop\OneDrive - 東北電子専門学校\GE3A\ゲームアワード\プロジェクトに追加すべきファイル_VC用;C:\Users\240160\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\Users\Rihit\OneDrive - 東北電子専門学校\2DAward\プロジェクトに追加すべきファイル_VC用;C:\PG\2D-Scrolling-Action\プロジェクトに追加すべきファイル_VC用</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

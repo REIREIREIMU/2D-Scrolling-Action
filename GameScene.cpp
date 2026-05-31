@@ -625,8 +625,7 @@ void GameScene::Update(/*float*/ double deltaTime) {
 		// ===== 瘦せ警告（点滅＋音トリガー）=====
 
 		// Thin or SlightlyThin 判定
-		bool isThin = (player.GetFatState() == FatState::Thin ||
-			player.GetFatState() == FatState::SlightlyThin);
+		bool isThin = (player.GetFatState() == FatState::Thin);
 
 		showThinWarning_ = isThin;
 

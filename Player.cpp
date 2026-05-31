@@ -437,10 +437,10 @@ void Player::Draw(int scrollX) const {
 
 	int handle = -1;
 
-	// ★ 現在の体型を1回だけ取得
+	// 現在の体型を1回だけ取得
 	FatState state = GetFatState();
 
-	// ★ 現在体型の switch「だけ」実行する
+	// 現在体型の switch「だけ」実行する
 	if (state == FatState::Thin) {
 		switch (animState_thin) {
 		case AnimState_Thin::Idle: handle = ThinTidleImage; break;
