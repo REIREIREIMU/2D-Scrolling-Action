@@ -14,8 +14,8 @@ namespace TitleSceneConfig {
 
 class TitleScene : public SceneBase {
 private:
-	bool endFlag  = false;
-	bool quitFlag = false;    //終了用フラグ
+	bool endFlag = false;    // タイトルシーン終了用フラグ
+	bool quitFlag = false;    // ゲーム終了用フラグ
 
 	int backgroundImage = -1; // 背景画像のID
 	int TitleImage		= -1; // タイトル画像のID
