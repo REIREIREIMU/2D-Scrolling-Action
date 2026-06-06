@@ -664,36 +664,41 @@ Rect Player::GetRect() const {
 	};
 }
 
-//食べたときの処理(大雑把に分けて8段階太る)
-void Player::Grow(std::vector<Block>& blocks) {
+
+// =========================================
+// 食べたときの処理（体型増加）
+// 体型に応じてパラメータを段階的に変化させる
+// =========================================
+void Player::Grow(std::vector<Block>& blocks)
+{
 	FatState state = GetFatState();
+
+	// 「肥満４度」を超えた場合は死亡
 	if (width >= PlayerConfig::WIDTH_FAT_4) {
 		isDead = true;  // 太りすぎで死亡
 		return;
 	}
 
-	// 瘦せ または やや瘦せ のときは +15
+	// 「瘦せ」または、「やや瘦せ」のときは見た目と当たり判定が15加算
 	if (state == FatState::Thin || state == FatState::SlightlyThin) {
 		if (width + PlayerConfig::CONVERSION_WIDTH_MIN <= PlayerConfig::WIDTH_NORMAL) {
 			width += PlayerConfig::CONVERSION_WIDTH_MIN;
-			if (jumpPower < PlayerConfig::JUMP_MIN) {
-				jumpPower += PlayerConfig::CONVERSION_JUMP;
-			}
+			// ジャンプが重くなる
+			if (jumpPower < PlayerConfig::JUMP_MIN) jumpPower += PlayerConfig::CONVERSION_JUMP;
 		}
 		else {
-			width = PlayerConfig::WIDTH_NORMAL; // 普通の最大に調整
+			width = PlayerConfig::WIDTH_NORMAL; // 「普通」の最大に調整
 		}
 	}
 	else {
-		// 普通以上は従来通り +40
+		// 体型「普通」以上は従来通り見た目と当たり判定が40加算
 		if (width < PlayerConfig::WIDTH_FAT_4) width += PlayerConfig::CONVERSION_WIDTH_MAX;
+		// 太るほど移動速度が低下
 		if (speed > PlayerConfig::SPEED_MIN) speed -= PlayerConfig::CONVERSION_SPEED;
-		if (jumpPower < PlayerConfig::JUMP_MIN) {
-			jumpPower += PlayerConfig::CONVERSION_JUMP;
-		}
+		// ジャンプは重くなる
+		if (jumpPower < PlayerConfig::JUMP_MIN) jumpPower += PlayerConfig::CONVERSION_JUMP;
 	}
-
-	walkedDistance = 0.0f;			  // カウントリセット
+	walkedDistance = 0.0f;			  // 移動量リセット
 	ResolveStuckAfterResize(blocks);  // ここでプレイヤーの位置を調整
 	FixStuckInBlock(blocks);		  // 体型変化後にブロックに埋まっていないか確認
 }
@@ -786,8 +791,11 @@ void Player::LoadImages()
 
 }
 
-//動いているとき
-void Player::ShrinkByDistance(std::vector<Block>& blocks) {
+// =========================================
+// 一定距離移動することで痩せる処理
+// =========================================
+void Player::ShrinkByDistance(std::vector<Block>& blocks)
+{
 	if (walkedDistance < shrinkDistance) return;
 	FatState state = GetFatState();
 
@@ -797,38 +805,44 @@ void Player::ShrinkByDistance(std::vector<Block>& blocks) {
 		return;
 	}
 
-	// 普通より太っている → 大きく減少
+	// 「普通」より太っていれば、徐々に能力が上がる
 	if (walkedDistance >= PlayerConfig::DISTANCE_TO_SHRINK * PlayerConfig::DISTANCE_FIXED_VALUE
-		&& width > PlayerConfig::WIDTH_NORMAL) {
-
+		&& width > PlayerConfig::WIDTH_NORMAL)
+	{
 		if (width > PlayerConfig::WIDTH_NORMAL) {
+			// 痩せるほど見た目と当たり判定が縮小する
 			if (width > PlayerConfig::WIDTH_THIN) width -= PlayerConfig::CONVERSION_WIDTH_MAX;
+			// 痩せるほどスピードが上がる
 			if (speed < PlayerConfig::SPEED_MAX) speed += PlayerConfig::CONVERSION_SPEED;
+			// 痩せるほどジャンプが高くなる
 			if (jumpPower > PlayerConfig::JUMP_MAX) {
 				jumpPower -= PlayerConfig::CONVERSION_JUMP;
 			}
 		}
 	}
-	// 普通から痩せる → 少し減らす
+	// 「普通」から痩せる、少し能力を上がる
 	else if (walkedDistance >= PlayerConfig::DISTANCE_TO_SHRINK * PlayerConfig::DISTANCE_FIXED_VALUE
 		&& width == PlayerConfig::WIDTH_NORMAL)
 	{
+		// 痩せるほど見た目と当たり判定が縮小する
 		if (width > PlayerConfig::WIDTH_THIN) width -= PlayerConfig::CONVERSION_WIDTH_MIN;
+		// 痩せるほどジャンプが高くなる
 		if (jumpPower > PlayerConfig::JUMP_MAX) {
 			jumpPower -= PlayerConfig::CONVERSION_JUMP;
 		}
 	}
-	// やや瘦せ〜瘦せ → 少しずつ減少
+	// 「やや瘦せ」「瘦せ」から痩せる、能力を最大にする
 	else if (walkedDistance >= PlayerConfig::DISTANCE_TO_SHRINK * PlayerConfig::DISTANCE_FIXED_VALUE
 		&& width > PlayerConfig::WIDTH_THIN)
 	{
+		// 痩せるほど見た目と当たり判定が縮小する
 		if (width > PlayerConfig::WIDTH_THIN) width -= PlayerConfig::CONVERSION_WIDTH_MIN;
+		// ジャンプが最大値になる
 		if (jumpPower > PlayerConfig::JUMP_MAX) {
 			jumpPower -= PlayerConfig::CONVERSION_JUMP;
 		}
 	}
-
-	walkedDistance = 0.0f;			  // カウントリセット
+	walkedDistance = 0.0f;			  // 移動量リセット
 	ResolveStuckAfterResize(blocks);  // ここでプレイヤーの位置を調整
 	FixStuckInBlock(blocks);		  // 体型変化後にブロックに埋まっていないか確認
 }
