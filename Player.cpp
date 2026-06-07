@@ -256,32 +256,43 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 		isFacingRight = (dx > 0);
 	}
 
-	//左右判定
+	// 左右判定
 	int step = (dx > 0) ? GlobalConfig::RIGHT : GlobalConfig::LEFT;
 
+	// =========================================
+	// 横移動処理
+	// =========================================
 	int movedX = 0;
-	while (movedX != dx) {
+	while (movedX != dx)
+	{
 		int nextX = x + step;
+
+		// 現在の当たり判定取得
 		Rect testRect = GetRect();
+
+		// 体型変化対応：幅を考慮して中心補正
 		testRect.x = nextX - width / GlobalConfig::Break_Number;
 
 		bool hit = false;
-		for (const auto& block : blocks) {
+		for (const auto& block : blocks)
+		{
 			if (!block.HasCollision()) continue;
 			const Rect& wall = block.GetRect();
 
-			//ブロックとの当たり判定のだから触らないで
+			// 縦方向の重なり判定
 			bool verticalOverlap =
 				testRect.y + testRect.h > wall.y + PlayerConfig::COLLISION_MARGIN &&
 				testRect.y < wall.y + wall.h - PlayerConfig::COLLISION_MARGIN;
-
+			
+			// AABB判定
 			if (testRect.Intersects(wall) && verticalOverlap) {
 				hit = true;
 				break;
 			}
 		}
 		if (hit) break;
-		x += step;
+
+		x += step; // 衝突していなければそのまま移動
 		movedX += step;
 	}
 
@@ -319,31 +330,42 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 		ClimbLadder();
 	}
 
+	// =========================================
 	// 着地判定
+	// =========================================
 	onGround = (startFreezeTimer > 0.0f);
+
+	// 足元用の判定矩形
 	Rect footRect = GetRect();
 
+	// 落下量計算
 	int dy = (int)(velocityY * deltaTime * PlayerConfig::SPEED_CORRECTION);
 	dy = (dy > 1) ? dy : 1;
+
+	// 下方向に少し拡張
 	footRect.y += dy;
 
-	for (int i = (int)blocks.size() - 1; i >= 0; --i) {
+	for (int i = (int)blocks.size() - 1; i >= 0; --i)
+	{
 		Block& block = blocks[i];
 		if (!block.HasCollision()) continue;
 
 		const Rect& rect = block.GetRect();
 
-		//横に少しでもかぶっているかも確認（特に空中で）
+		// 横方向の重なりチェック（特に空中時の誤判定防止）
 		bool horizontalOverlap =
 			footRect.x + footRect.w > rect.x + PlayerConfig::COLLISION_MARGIN &&
 			footRect.x < rect.x + rect.w - PlayerConfig::COLLISION_MARGIN;
 
 		// プレイヤーがブロックに接地しているか判定
 		if (velocityY >= 0 && footRect.Intersects(rect) && horizontalOverlap) {
+			// めり込まないよう補正
+			y = rect.y - PlayerConfig::HEIGHT / GlobalConfig::Break_Number;
 
-			y = rect.y - PlayerConfig::HEIGHT / GlobalConfig::Break_Number;  // めり込まないよう補正
 			velocityY = 0.0f;
 			onGround = true;
+
+			// ジャンプ状態リセット
 			if (isJumping)
 			{
 				isJumping = false;
@@ -353,18 +375,25 @@ void Player::Update(std::vector<Block>& blocks, double deltaTime) {
 		}
 	}
 
-	// 天井にぶつかる判定
+	// =========================================
+	// 天井衝突判定
+	// =========================================
 	Rect headRect = GetRect();
 	for (const auto& block : blocks) {
+
 		if (!block.HasCollision()) continue;
 		const Rect& rect = block.GetRect();
 
+		// 横方向の重なり
 		bool horizontalOverlap =
 			headRect.x + headRect.w > rect.x + PlayerConfig::COLLISION_MARGIN &&
 			headRect.x < rect.x + rect.w - PlayerConfig::COLLISION_MARGIN;
 
+		// 上方向衝突判定
 		if (velocityY < 0 && headRect.Intersects(rect) && horizontalOverlap) {
+			// めり込み防止補正
 			y = rect.y + rect.h + PlayerConfig::HEIGHT / GlobalConfig::Break_Number;
+
 			velocityY = 0;
 			break;
 		}
@@ -506,6 +535,9 @@ void Player::Draw(int scrollX) const {
 		// 左向き
 		DrawExtendGraph(right, top, left, bottom, handle, TRUE);
 	}
+
+	// 赤い枠で描画（デバック用）
+	//DrawBox(left, top, right, bottom, GetColor(255, 0, 0), FALSE);
 }
 
 void Player::DrawUI(int scrollX) const
