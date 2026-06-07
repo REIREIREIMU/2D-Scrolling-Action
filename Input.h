@@ -8,16 +8,16 @@ public:
 
     // 左右移動
     static int GetAxisX(); // -1: 左, 1: 右, 0: 無し
-
-	static int GetAxisY(); // -1: 上, 1: 下, 0: 無し 梯子の時のみ使用
+    static int GetAxisY(); // -1: 上, 1: 下, 0: 無し 梯子の時のみ使用
 
     // ボタン入力
     static bool IsJump();   // ジャンプ（ B / SPACE）
-    static bool IsDecide(); // 決定    （ A / ENTER）
+    static bool IsDecide(); // 決定　　（ A / ENTER）
 
     // デバッグ表示
     //static void DebugPrint();
 
 protected:
-    static int padState; // ジョイパッド状態
+    // コントローラーの現在入力状態
+    static int padState;
 };
